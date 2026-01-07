@@ -5,23 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>EDEN | Social Mask Decoder</title>
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Inter:wght@300;400;600&family=Noto+Sans+TC:wght@300;500;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg: #050505;
-            --text: #ffffff;
-            --accent: #D4AF37; /* EDEN Gold */
-            --alert: #ff4757;   /* Warning Red */
-            --glass: rgba(255, 255, 255, 0.05);
+            /* 配色方案：午夜香檳 */
+            --bg-deep: #050505;       /* 深邃黑 */
+            --text-main: #E0E0E0;     /* 鉑金白 */
+            --text-muted: #888888;    /* 霧面灰 */
+            --accent: #C0A060;        /* 霧面香檳金 */
+            --alert: #A03030;         /* 勃根地酒紅 */
+            --gradient-start: rgba(5, 5, 5, 0);
+            --gradient-end: rgba(5, 5, 5, 1);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             font-family: 'Inter', 'Noto Sans TC', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
+            background-color: var(--bg-deep);
+            color: var(--text-main);
             margin: 0;
             padding: 0;
             height: 100vh;
@@ -32,214 +35,271 @@
             align-items: center;
         }
 
-        /* 1. 主視覺容器 (海報比例) */
+        /* 主容器 */
         .poster-container {
             position: relative;
             width: 100%;
             height: 100%;
-            max-width: 500px;
+            max-width: 500px; /* 手機海報比例 */
             max-height: 900px;
             background: #000;
             overflow: hidden;
-            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            box-shadow: 0 0 60px rgba(0,0,0,0.8);
         }
 
-        /* 背景照片 */
+        /* 1. 背景照片層 */
         .bg-photo {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             object-fit: cover;
-            filter: grayscale(100%) contrast(115%) brightness(0.8);
+            /* 預設黑白濾鏡，增加質感 */
+            filter: grayscale(100%) contrast(115%) brightness(0.9);
             z-index: 1;
-            transition: transform 3s ease-out; /* Zoom effect */
+            transition: transform 3s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 1s ease;
         }
 
-        /* 2. 遮罩與氛圍 */
+        /* 2. 電影漸層遮罩 (The Cinematic Fade) */
+        /* 關鍵：從 40% 高度開始變暗，底部全黑，保證文字絕對清晰 */
         .vignette {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, transparent 40%, #000 120%);
+            background: linear-gradient(
+                to bottom, 
+                rgba(0,0,0,0.1) 0%, 
+                rgba(5,5,5,0) 40%, 
+                rgba(5,5,5,0.6) 65%, 
+                rgba(5,5,5,0.95) 90%,
+                #050505 100%
+            );
             z-index: 2;
+            pointer-events: none;
         }
         
+        /* 顆粒質感 */
         .noise-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            opacity: 0.05;
-            background: url('https://www.transparenttextures.com/patterns/stardust.png'); /* 顆粒感 */
+            opacity: 0.06;
+            background: url('https://www.transparenttextures.com/patterns/stardust.png');
             z-index: 3;
             pointer-events: none;
         }
 
-        /* 3. 互動層 (UI Layer) */
+        /* 3. UI 互動層 */
         .ui-layer {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: 10;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: space-between; /* 上下分開 */
             padding: 30px;
-            pointer-events: none; /* 預設穿透 */
+        }
+
+        /* 頂部品牌標籤 */
+        .top-brand {
+            font-family: 'Cinzel', serif;
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            color: rgba(255,255,255,0.4);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
         }
 
         /* 上傳按鈕 */
         .upload-btn {
-            pointer-events: auto;
             align-self: center;
             margin-top: 50%;
             transform: translateY(-50%);
-            border: 1px solid rgba(255,255,255,0.3);
-            padding: 20px 40px;
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 25px 50px;
             text-align: center;
-            background: rgba(0,0,0,0.3);
-            backdrop-filter: blur(10px);
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(8px);
             cursor: pointer;
-            transition: 0.3s;
+            transition: all 0.4s ease;
+            pointer-events: auto;
         }
-        .upload-btn:hover { border-color: var(--accent); background: rgba(212, 175, 55, 0.1); }
-        .btn-title { font-family: 'Cinzel', serif; font-size: 1.4rem; letter-spacing: 2px; }
-        .btn-sub { font-size: 0.7rem; color: #aaa; margin-top: 5px; letter-spacing: 1px; }
+        .upload-btn:hover { 
+            border-color: var(--accent); 
+            background: rgba(192, 160, 96, 0.1); 
+            box-shadow: 0 0 20px rgba(192, 160, 96, 0.1);
+        }
+        .btn-title { font-family: 'Cinzel', serif; font-size: 1.3rem; letter-spacing: 2px; color: #fff; margin-bottom: 5px;}
+        .btn-sub { font-size: 0.7rem; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; }
 
         input[type="file"] { display: none; }
 
-        /* 4. 測驗模組 (Quiz Modal) */
-        .quiz-modal {
-            position: absolute;
-            bottom: 0; left: 0; width: 100%;
-            background: rgba(10, 10, 10, 0.95);
-            backdrop-filter: blur(15px);
-            border-top: 1px solid var(--accent);
-            padding: 40px 30px;
-            border-radius: 20px 20px 0 0;
-            z-index: 20;
-            transform: translateY(110%); /* 預設隱藏 */
-            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-            pointer-events: auto;
-            text-align: center;
-        }
-        .quiz-modal.active { transform: translateY(0); }
-
-        .quiz-question {
-            font-size: 1.1rem;
-            margin-bottom: 30px;
-            font-weight: 300;
-            line-height: 1.5;
-        }
-        .quiz-options { display: flex; gap: 15px; justify-content: center; }
-        .option-btn {
-            flex: 1;
-            padding: 15px;
-            background: #222;
-            border: 1px solid #444;
-            color: #fff;
-            font-size: 0.9rem;
-            cursor: pointer;
-        }
-        .option-btn:active { background: var(--accent); color: #000; }
-
-        /* 5. 結果展示 (Result Card) */
+        /* 結果內容區 (靠下對齊) */
         .result-content {
             opacity: 0;
-            transition: opacity 1s ease 0.5s;
-            height: 100%;
+            transition: opacity 1.5s ease;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end; /* 靠下對齊 */
+            justify-content: flex-end;
             text-align: left;
-            padding-bottom: 20px;
+            margin-bottom: 10px;
         }
 
-        .top-label {
-            position: absolute;
-            top: 30px; left: 30px;
-            font-size: 0.6rem;
-            letter-spacing: 2px;
-            color: rgba(255,255,255,0.6);
-            border: 1px solid rgba(255,255,255,0.3);
-            padding: 5px 10px;
-        }
-
+        /* 人格原型標題 */
         .archetype-en {
             font-family: 'Cinzel', serif;
-            font-size: 3rem;
+            font-size: 3.2rem;
+            font-weight: 400;
             line-height: 0.9;
             color: #fff;
-            margin-bottom: 5px;
-            text-shadow: 0 5px 20px #000;
+            margin-bottom: 8px;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            letter-spacing: -1px;
         }
         
         .archetype-cn {
-            font-size: 1.2rem;
-            font-weight: 700;
-            letter-spacing: 5px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            letter-spacing: 8px; /* 寬字距 */
             color: var(--accent);
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             text-transform: uppercase;
-            text-shadow: 0 2px 10px #000;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            padding-left: 3px;
         }
 
         /* 數據條 */
-        .stats-bar {
-            margin-bottom: 15px;
+        .stats-container {
+            width: 100%;
+            padding-right: 15%; /* 留白增加高級感 */
+            margin-bottom: 25px;
         }
+        .stats-bar { margin-bottom: 15px; }
         .bar-label {
             display: flex;
             justify-content: space-between;
-            font-size: 0.7rem;
-            color: #bbb;
-            margin-bottom: 5px;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
             text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Inter', sans-serif;
         }
         .progress-bg {
-            width: 100%; height: 2px; background: rgba(255,255,255,0.2);
+            width: 100%; height: 2px;
+            background: rgba(255,255,255,0.1);
         }
         .progress-fill {
-            height: 100%; background: #fff; width: 0%; transition: width 1.5s ease-out;
-            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+            height: 100%; width: 0%; 
+            transition: width 2s cubic-bezier(0.22, 1, 0.36, 1);
+            position: relative;
         }
+        /* 外在親和 (白) */
+        #barVisual { background: #fff; box-shadow: 0 0 8px rgba(255,255,255,0.4); }
+        /* 內在野心 (金) */
+        #barInner { background: var(--accent); box-shadow: 0 0 8px rgba(192, 160, 96, 0.4); }
 
-        /* 誤解指數 (Traffic Hook) */
+        /* 誤解指數區塊 */
         .mis-index-box {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 20px;
             margin-top: 10px;
-            border-top: 1px solid rgba(255,255,255,0.2);
-            padding-top: 15px;
         }
         .mis-score {
             font-family: 'Cinzel', serif;
             font-size: 2.5rem;
             color: var(--alert);
+            text-shadow: 0 0 20px rgba(160, 48, 48, 0.3);
+            min-width: 80px;
         }
         .mis-text {
             font-size: 0.75rem;
             color: #ccc;
-            line-height: 1.4;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+        .mis-label {
+            color: var(--alert);
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            display: block;
+            margin-bottom: 2px;
         }
 
-        /* CTA */
+        /* CTA 連結 */
         .cta-link {
-            margin-top: 25px;
-            font-size: 0.7rem;
+            margin-top: 30px;
+            font-size: 0.65rem;
             letter-spacing: 2px;
             text-align: center;
-            opacity: 0.7;
-            text-decoration: underline;
+            color: var(--accent);
+            text-decoration: none;
             cursor: pointer;
             pointer-events: auto;
+            border-bottom: 1px solid transparent;
+            transition: 0.3s;
+            opacity: 0.8;
+            padding-bottom: 5px;
+            display: inline-block;
+            align-self: center;
+        }
+        .cta-link:hover { 
+            border-bottom-color: var(--accent); 
+            opacity: 1; 
         }
 
-        /* 掃描線 */
+        /* 測驗模態框 (磨砂玻璃) */
+        .quiz-modal {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%;
+            background: rgba(10, 10, 10, 0.9);
+            backdrop-filter: blur(25px); /* 強力模糊 */
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding: 50px 30px;
+            border-radius: 30px 30px 0 0;
+            z-index: 20;
+            transform: translateY(110%);
+            transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+            pointer-events: auto;
+            text-align: center;
+            box-shadow: 0 -20px 50px rgba(0,0,0,0.8);
+        }
+        .quiz-modal.active { transform: translateY(0); }
+
+        .quiz-label {
+            font-size: 0.6rem; color: var(--accent); 
+            margin-bottom: 20px; letter-spacing: 4px; 
+            font-weight: 600; text-transform: uppercase;
+        }
+        .quiz-question {
+            font-size: 1.2rem; margin-bottom: 40px; 
+            font-weight: 300; line-height: 1.4; color: #fff;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+        .quiz-options { display: flex; gap: 15px; justify-content: center; }
+        .option-btn {
+            flex: 1; padding: 18px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #ddd; font-size: 0.85rem; cursor: pointer;
+            transition: 0.3s;
+            font-weight: 300;
+        }
+        .option-btn:hover { border-color: var(--accent); background: rgba(192, 160, 96, 0.05); }
+        .option-btn:active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+        /* 掃描光束 */
         .scan-beam {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 2px;
-            background: var(--accent);
-            box-shadow: 0 0 20px var(--accent);
+            background: #fff;
+            box-shadow: 0 0 15px #fff, 0 0 30px var(--accent);
             z-index: 5;
             display: none;
-            animation: beam 1.5s infinite ease-in-out;
+            animation: beam 2s infinite ease-in-out;
+            opacity: 0.9;
         }
         @keyframes beam { 0% {top:0} 50% {top:100%} 100% {top:0} }
 
@@ -249,53 +309,56 @@
 
     <div class="poster-container" id="container">
         <img id="bgPhoto" class="bg-photo" style="display:none;">
-        <div class="vignette"></div>
-        <div class="noise-overlay"></div>
+        <div class="vignette"></div> <div class="noise-overlay"></div>
         <div class="scan-beam" id="scanBeam"></div>
 
         <div class="ui-layer">
             
+            <div class="top-brand">
+                <span>EDEN VISUAL LAB</span>
+                <span>VOL.01</span>
+            </div>
+
             <div class="upload-btn" id="uploadBtn" onclick="document.getElementById('fileInput').click()">
                 <div class="btn-title">UPLOAD PORTRAIT</div>
-                <div class="btn-sub">社交面具解碼 · EDEN LAB</div>
+                <div class="btn-sub">社交面具解碼 · 靈魂審計</div>
             </div>
             <input type="file" id="fileInput" accept="image/*">
 
             <div class="result-content" id="resultContent">
-                <div class="top-label">SOCIAL MASK DECODER</div>
-
+                
                 <div>
                     <div class="archetype-en" id="titleEn">--</div>
                     <div class="archetype-cn" id="titleCn">--</div>
                 </div>
 
-                <div style="width: 100%; padding-right: 10%;">
+                <div class="stats-container">
                     <div class="stats-bar">
-                        <div class="bar-label"><span>Visual Warmth (外在親和)</span><span id="scoreVisual">0%</span></div>
+                        <div class="bar-label"><span>Visual Signal (外在親和)</span><span id="scoreVisual">0%</span></div>
                         <div class="progress-bg"><div class="progress-fill" id="barVisual"></div></div>
                     </div>
                     <div class="stats-bar">
-                        <div class="bar-label"><span>Internal Ambition (內在野心)</span><span id="scoreInner">0%</span></div>
-                        <div class="progress-bg"><div class="progress-fill" id="barInner" style="background:var(--accent);"></div></div>
+                        <div class="bar-label"><span>Internal Core (內在野心)</span><span id="scoreInner">0%</span></div>
+                        <div class="progress-bg"><div class="progress-fill" id="barInner"></div></div>
                     </div>
                 </div>
 
                 <div class="mis-index-box">
                     <div class="mis-score" id="misScore">0%</div>
                     <div class="mis-text">
-                        <strong style="color:var(--alert)">MISUNDERSTANDING INDEX</strong><br>
+                        <span class="mis-label">MISUNDERSTANDING INDEX</span>
                         <span id="diagnosis">正在計算靈魂落差...</span>
                     </div>
                 </div>
 
                 <div class="cta-link" onclick="window.open('https://instagram.com/eden_d_photo','_blank')">
-                    >> 校正你的視覺信號 (BOOK EDEN)
+                    >> BOOK A SESSION (校正視覺信號)
                 </div>
             </div>
         </div>
 
         <div class="quiz-modal" id="quizModal">
-            <div style="font-size: 0.7rem; color:var(--accent); margin-bottom:10px; letter-spacing:2px;">CALIBRATING SOUL...</div>
+            <div class="quiz-label">CALIBRATING SOUL...</div>
             <div class="quiz-question" id="quizText">載入中...</div>
             <div class="quiz-options">
                 <div class="option-btn" id="optA" onclick="answerQuiz(0)">選項 A</div>
@@ -306,214 +369,157 @@
     </div>
 
     <script>
-        // --- 變數初始化 ---
-        let visualWarmth = 50;  // AI 判斷的親和力
-        let visualPower = 50;   // AI 判斷的氣場
-        let innerAmbition = 50; // 測驗得出的野心
+        // 變數初始化
+        let visualWarmth = 50;
+        let visualPower = 50;
+        let innerAmbition = 50;
         let quizStep = 0;
         
+        // 題庫設計：確保二選一能明顯區分「野心」與「隨和」
         const questions = [
-            {
-                q: "在團隊遇到衝突時，你更傾向於？",
-                a: "安撫大家的情緒 (Focus on People)",
-                b: "直接解決問題核心 (Focus on Logic)",
-                val: 20 // 選 B 增加野心分數
-            },
-            {
-                q: "你希望初次見面的人覺得你？",
-                a: "好相處、沒架子",
-                b: "專業、不可忽視",
-                val: 30
-            },
-            {
-                q: "如果必須選擇，你寧願被？",
-                a: "被喜愛 (Liked)",
-                b: "被敬畏 (Feared)",
-                val: 40
-            }
+            { q: "在團隊遇到衝突時，你直覺的反應是？", a: "先安撫情緒 (Harmony)", b: "先解決問題 (Logic)", val: 20 },
+            { q: "你希望初次見面的人，對你的第一印象是？", a: "好相處、溫暖 (Warm)", b: "專業、有氣場 (Powerful)", val: 30 },
+            { q: "在人生這場遊戲中，你更渴望？", a: "被喜愛與連結 (Connection)", b: "被尊重與敬畏 (Respect)", val: 40 }
         ];
 
-        // --- 載入 Face API ---
+        // 載入模型
         Promise.all([
             faceapi.nets.tinyFaceDetector.loadFromUri('https://justadudewhohacks.github.io/face-api.js/models'),
             faceapi.nets.faceLandmark68Net.loadFromUri('https://justadudewhohacks.github.io/face-api.js/models'),
             faceapi.nets.faceExpressionNet.loadFromUri('https://justadudewhohacks.github.io/face-api.js/models')
-        ]).then(() => console.log('AI Ready'));
+        ]).then(() => console.log('AI System Ready'));
 
-        // --- 流程控制 ---
+        // DOM 元素
         const fileInput = document.getElementById('fileInput');
         const bgPhoto = document.getElementById('bgPhoto');
         const uploadBtn = document.getElementById('uploadBtn');
         const scanBeam = document.getElementById('scanBeam');
         const quizModal = document.getElementById('quizModal');
 
+        // 上傳監聽
         fileInput.addEventListener('change', async () => {
             const file = fileInput.files[0];
             if (!file) return;
-
-            // UI 切換
-            uploadBtn.style.display = 'none';
+            
+            // UI 狀態切換
+            uploadBtn.style.opacity = 0;
+            uploadBtn.style.pointerEvents = 'none';
             scanBeam.style.display = 'block';
             
             const reader = new FileReader();
             reader.onload = (e) => {
                 bgPhoto.src = e.target.result;
                 bgPhoto.style.display = 'block';
-                // 啟動 Zoom 動畫
-                setTimeout(() => bgPhoto.style.transform = "scale(1.05)", 100);
-
-                bgPhoto.onload = async () => {
-                    await analyzeFace();
-                }
+                // 啟動緩慢縮放特效 (Cinematic Zoom)
+                setTimeout(() => bgPhoto.style.transform = "scale(1.1)", 100);
+                
+                bgPhoto.onload = async () => { await analyzeFace(); }
             };
             reader.readAsDataURL(file);
         });
 
-        // 1. 照片分析
+        // 1. 面部分析
         async function analyzeFace() {
-            // 模擬運算延遲
+            // 模擬運算時間，增加儀式感
             setTimeout(async () => {
-                const detection = await faceapi.detectSingleFace(bgPhoto, new faceapi.TinyFaceDetectorOptions())
-                    .withFaceLandmarks()
-                    .withFaceExpressions();
+                const detection = await faceapi.detectSingleFace(bgPhoto, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceExpressions();
                 
                 scanBeam.style.display = 'none';
-
+                
                 if (detection) {
                     const exp = detection.expressions;
-                    // 計算外在分數
-                    // 溫暖度：笑越多越高
-                    visualWarmth = 30 + (exp.happy * 70) + (exp.surprised * 20);
-                    // 氣場：不笑+生氣越高
+                    // 算法優化：更敏感地捕捉親和力
+                    visualWarmth = 20 + (exp.happy * 80) + (exp.surprised * 10);
+                    // 氣場：中性臉+憤怒臉-恐懼
                     visualPower = 40 + (exp.neutral * 50) + (exp.angry * 30) - (exp.happy * 20);
                     
-                    visualWarmth = Math.min(100, Math.max(10, visualWarmth));
-                    visualPower = Math.min(100, Math.max(10, visualPower));
+                    visualWarmth = Math.min(100, Math.max(10, Math.round(visualWarmth)));
+                    visualPower = Math.min(100, Math.max(10, Math.round(visualPower)));
                 } else {
-                    // 沒偵測到臉，給個預設值以免卡住
-                    visualWarmth = 60;
+                    visualWarmth = 65; // 默認值
                     visualPower = 40;
                 }
-
-                // 進入測驗環節
+                
                 startQuiz();
-
-            }, 1500);
+            }, 1800);
         }
 
-        // 2. 心理測驗
-        function startQuiz() {
-            quizModal.classList.add('active');
-            renderQuestion();
-        }
-
+        // 2. 心理測驗邏輯
+        function startQuiz() { quizModal.classList.add('active'); renderQuestion(); }
+        
         function renderQuestion() {
-            if (quizStep >= questions.length) {
-                finishQuiz();
-                return;
-            }
+            if (quizStep >= questions.length) { finishQuiz(); return; }
             const q = questions[quizStep];
             document.getElementById('quizText').innerText = q.q;
             document.getElementById('optA').innerText = q.a;
             document.getElementById('optB').innerText = q.b;
         }
-
+        
         function answerQuiz(optionIndex) {
-            // 選 B (index 1) 增加野心
-            if (optionIndex === 1) {
-                innerAmbition += questions[quizStep].val;
-            }
-            quizStep++;
-            renderQuestion();
+            if (optionIndex === 1) innerAmbition += questions[quizStep].val;
+            quizStep++; renderQuestion();
         }
 
-        // 3. 結果計算與渲染
+        // 3. 結算與渲染
         function finishQuiz() {
             quizModal.classList.remove('active');
-            innerAmbition = Math.min(100, innerAmbition); // 封頂 100
+            innerAmbition = Math.min(100, innerAmbition);
 
-            // 計算誤解指數 (外在親和 與 內在野心 的差距)
-            // 如果你看起來很兇(低親和)且野心很大 -> 誤解低
-            // 如果你看起來很乖(高親和)且野心很大 -> 誤解高
-            let gap = Math.abs(visualWarmth - (100 - innerAmbition)); // 簡化邏輯
-            
-            // 更直觀的流量邏輯： "Masking Index"
-            // 如果 外在看起來很弱 (High Warmth, Low Power) 但 內在很強 (High Ambition) -> 偽裝指數極高
-            let maskingScore = 0;
-            if (innerAmbition > 60 && visualWarmth > 60) {
-                maskingScore = Math.round((innerAmbition + visualWarmth) / 2); // 披著羊皮的狼
-            } else if (innerAmbition < 40 && visualPower > 60) {
-                maskingScore = Math.round((visualPower + (100-innerAmbition)) / 2); // 紙老虎
+            // 計算誤解指數 (Gap Analysis)
+            // 邏輯：內在野心高(>60) 但外在看起來好欺負(Warmth>60) -> 誤解極高
+            // 邏輯：內在野心低(<40) 但外在看起來很兇(Power>60) -> 誤解極高
+            let misIndex = 0;
+            let diagnosisText = "";
+            let archetypeEn = "";
+            let archetypeCn = "";
+
+            if (innerAmbition >= 60) {
+                if (visualWarmth >= 60) {
+                    // 狼披羊皮
+                    archetypeEn = "THE SMILING ASSASSIN";
+                    archetypeCn = "笑面殺手";
+                    misIndex = Math.round((innerAmbition + visualWarmth) / 2);
+                    diagnosisText = "極度危險。你的外表具備高度親和力欺騙性，但內心野心勃勃。人們常因你的微笑而低估你的殺傷力。";
+                } else {
+                    // 狼披狼皮
+                    archetypeEn = "THE EMPEROR";
+                    archetypeCn = "絕對統治者";
+                    misIndex = Math.round(Math.abs(innerAmbition - visualPower) / 3); // 誤解低
+                    diagnosisText = "表裡如一的強勢。你的臉部結構與靈魂頻率完全同步，不需要開口，氣場已經下達了指令。";
+                }
             } else {
-                maskingScore = Math.round(Math.random() * 30 + 20); // 普通人
+                if (visualPower >= 60) {
+                    // 羊披狼皮
+                    archetypeEn = "THE BLUFF MASTER";
+                    archetypeCn = "虛張聲勢者";
+                    misIndex = Math.round((visualPower + (100-innerAmbition)) / 2);
+                    diagnosisText = "防禦機制過剩。你用冷酷的外表武裝自己，但內心其實渴望和平與安全感。這道牆阻礙了真實連結。";
+                } else {
+                    // 羊披羊皮
+                    archetypeEn = "THE SOCIAL GLUE";
+                    archetypeCn = "社交黏著劑";
+                    misIndex = Math.round(Math.abs(visualWarmth - (100-innerAmbition)) / 3); // 誤解低
+                    diagnosisText = "你是群體中的潤滑劑。雖然缺乏攻擊性，但你的親和力是一種被低估的軟實力，能化解看不見的危機。";
+                }
             }
 
-            renderFinalCard(maskingScore);
-        }
+            // 渲染數據
+            document.getElementById('titleEn').innerText = archetypeEn;
+            document.getElementById('titleCn').innerText = archetypeCn;
+            document.getElementById('scoreVisual').innerText = visualWarmth + "%";
+            document.getElementById('scoreInner').innerText = innerAmbition + "%";
+            document.getElementById('misScore').innerText = misIndex + "%";
+            document.getElementById('diagnosis').innerText = diagnosisText;
 
-        function renderFinalCard(misScore) {
+            // 顯示結果
             document.getElementById('resultContent').style.opacity = 1;
-            document.querySelector('.ui-layer').style.pointerEvents = 'auto'; // 開放點擊
-
-            // 跑分動畫
-            animateValue("barVisual", visualWarmth, "%");
-            animateValue("barInner", innerAmbition, "%");
-            animateText("scoreVisual", visualWarmth);
-            animateText("scoreInner", innerAmbition);
-            animateText("misScore", misScore);
-
-            // 定義人設 (Archetypes)
-            let en = "";
-            let cn = "";
-            let diag = "";
-
-            // 邏輯判定
-            if (innerAmbition > 70) {
-                if (visualWarmth > 65) {
-                    en = "THE SMILING ASSASSIN";
-                    cn = "笑面殺手";
-                    diag = "你的外表極具欺騙性。你看起來無害，但內心早已佈局好了一切。這是最危險也最迷人的反差。";
-                } else {
-                    en = "THE EMPEROR";
-                    cn = "絕對統治者";
-                    diag = "表裡如一的強勢。你的臉和你的靈魂都在下達指令。不需要開口，氣場已經說明了一切。";
-                }
-            } else {
-                if (visualPower > 70) {
-                    en = "THE BLUFF MASTER";
-                    cn = "虛張聲勢者";
-                    diag = "你用冷酷的外表武裝自己，但內心其實渴望和平。這種防禦機制讓你容易被誤解為難以親近。";
-                } else {
-                    en = "THE SOCIAL GLUE";
-                    cn = "社交黏著劑";
-                    diag = "你是天生的潤滑劑。雖然你可能覺得自己缺乏霸氣，但你的親和力其實是一種被低估的軟實力。";
-                }
-            }
-
-            document.getElementById('titleEn').innerText = en;
-            document.getElementById('titleCn').innerText = cn;
-            document.getElementById('diagnosis').innerText = diag;
-        }
-
-        function animateValue(id, value, unit) {
+            
+            // 跑條動畫
             setTimeout(() => {
-                document.getElementById(id).style.width = value + unit;
+                document.getElementById('barVisual').style.width = visualWarmth + "%";
+                document.getElementById('barInner').style.width = innerAmbition + "%";
             }, 100);
         }
-        
-        function animateText(id, finalVal) {
-            let start = 0;
-            let obj = document.getElementById(id);
-            let timer = setInterval(() => {
-                start += 2;
-                obj.innerText = start + "%";
-                if (start >= finalVal) {
-                    obj.innerText = finalVal + "%";
-                    clearInterval(timer);
-                }
-            }, 20);
-        }
-
     </script>
 </body>
 </html>
