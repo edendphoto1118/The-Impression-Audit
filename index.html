@@ -12,8 +12,8 @@
         :root {
             --bg-deep: #050505;
             --text-main: #E0E0E0;
-            --accent: #D4AF37; /* 正統香檳金 */
-            --accent-dim: rgba(212, 175, 55, 0.2);
+            --accent: #D4AF37; /* 香檳金 */
+            --accent-dim: rgba(212, 175, 55, 0.15);
             --alert: #A03030;
         }
 
@@ -49,7 +49,6 @@
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             object-fit: cover;
-            /* 網頁預覽時稍微壓暗，讓白字清楚，但不影響匯出 */
             filter: brightness(0.6); 
             z-index: 1;
         }
@@ -104,7 +103,7 @@
         .upload-circle:hover { border-color: var(--accent); background: var(--accent-dim); }
         .upload-text { font-family: 'Cinzel', serif; margin-top: 8px; font-size: 0.7rem; letter-spacing: 2px; }
 
-        /* 手機預覽介面 (Result Panel) */
+        /* 手機預覽介面 */
         .result-panel {
             display: none;
             flex-direction: column;
@@ -132,19 +131,18 @@
             text-shadow: 0 5px 20px rgba(0,0,0,0.8);
         }
 
-        /* 新增：手機版描述文字 */
         .preview-desc {
             font-family: 'Playfair Display', serif;
             font-size: 0.9rem;
             font-style: italic;
             color: #ddd;
             margin-bottom: 25px;
-            padding: 0 20px;
+            padding: 0 10px;
             line-height: 1.4;
             text-shadow: 0 2px 10px rgba(0,0,0,0.8);
         }
 
-        /* 手機版數據儀表板 */
+        /* 數據儀表板 */
         .mobile-stats {
             display: flex;
             width: 100%;
@@ -169,7 +167,7 @@
         .m-label { font-size: 0.6rem; color: #aaa; letter-spacing: 1px; margin-bottom: 4px; font-family: 'Montserrat', sans-serif;}
         .m-val { font-family: 'JetBrains Mono', monospace; color: #fff; font-size: 1rem; font-weight: 700; }
 
-        /* 新增：契合人格區塊 */
+        /* 契合人格區塊 */
         .match-section {
             width: 100%;
             text-align: center;
@@ -202,32 +200,76 @@
             background: rgba(0,0,0,0.2);
         }
 
-        /* 操作按鈕 */
+        /* 按鈕樣式 (Ghost Button) */
         .btn-primary {
-            background: var(--accent);
-            color: #000;
-            border: none;
+            background: transparent; /* 透明底 */
+            color: var(--accent);
+            border: 1px solid var(--accent); /* 金框 */
             padding: 15px;
-            font-family: 'Noto Sans TC', sans-serif;
-            font-weight: 700;
-            letter-spacing: 2px;
-            font-size: 0.9rem;
             cursor: pointer;
             width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
-            box-shadow: 0 0 30px rgba(192, 160, 96, 0.3);
             transition: 0.3s;
-            border: 1px solid var(--accent);
+            position: relative; /* 為了光澤特效 */
+            overflow: hidden;
         }
+        
+        /* 文字樣式 */
+        .btn-main-text {
+            font-family: 'Noto Sans TC', sans-serif;
+            font-weight: 700;
+            letter-spacing: 4px;
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+        .btn-sub-text {
+            font-family: 'Cinzel', serif;
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            opacity: 0.8;
+        }
+
         .btn-primary:active { transform: scale(0.98); }
-        .btn-small { font-size: 0.6rem; opacity: 0.8; font-family: 'Cinzel', serif; margin-top: 3px; letter-spacing: 1px; font-weight: 400;}
+
+        /* --- 🌟 LUXURY SHINE EFFECT (金屬流光特效) --- */
+        @keyframes shine-sweep {
+            0% { left: -100%; opacity: 0; }
+            5% { opacity: 1; }
+            100% { left: 200%; opacity: 0; }
+        }
+
+        .luxury-shine { position: relative; overflow: hidden; z-index: 1; }
+        .luxury-shine > * { position: relative; z-index: 2; } /* 內容浮在光之上 */
+
+        .luxury-shine::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 150%; height: 100%;
+            background: linear-gradient(
+                120deg,
+                transparent 20%,
+                rgba(212, 175, 55, 0.1) 30%,
+                rgba(212, 175, 55, 0.4) 50%, 
+                rgba(212, 175, 55, 0.1) 70%,
+                transparent 80%
+            );
+            transform: skewX(-25deg);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .luxury-shine:hover::after,
+        .luxury-shine:active::after {
+            animation: shine-sweep 0.75s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
 
         /* --- 隱藏的匯出專用卡片 (1080x1920) --- */
         #exportCard {
             position: fixed;
-            left: -9999px; /* 移出畫面 */
+            left: -9999px;
             top: 0;
             width: 1080px;
             height: 1920px;
@@ -239,7 +281,6 @@
             justify-content: space-between;
         }
 
-        /* 絕對定位的背景圖 (由 JS 裁切後填入) */
         #exportBg {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -264,7 +305,7 @@
             height: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end; /* 內容靠下 */
+            justify-content: flex-end;
             padding: 80px 80px;
             color: #fff;
         }
@@ -393,7 +434,7 @@
             <div class="brand-header">EDEN LAB // VISUAL AUDIT</div>
 
             <div class="upload-area" id="uploadArea">
-                <div class="upload-circle" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-circle luxury-shine" onclick="document.getElementById('fileInput').click()">
                     <div style="font-size: 2rem;">+</div>
                     <div class="upload-text">UPLOAD</div>
                 </div>
@@ -401,7 +442,9 @@
             <input type="file" id="fileInput" accept="image/*">
 
             <div class="result-panel" id="resultPanel">
-                <div style="flex-grow:1;"></div> <div class="preview-title" id="uiEn">--</div>
+                <div style="flex-grow:1;"></div>
+                
+                <div class="preview-title" id="uiEn">--</div>
                 <div class="preview-sub" id="uiCn">--</div>
 
                 <div class="preview-desc" id="uiDesc">
@@ -424,7 +467,7 @@
                 </div>
 
                 <div class="match-section">
-                    <div class="match-label">HIGHLY COMPATIBLE WITH (契合共鳴)</div>
+                    <div class="match-label">HIGHLY COMPATIBLE WITH</div>
                     <div class="match-tags">
                         <span class="match-tag" id="uiMatch1">--</span>
                         <span class="match-tag" id="uiMatch2">--</span>
@@ -432,9 +475,9 @@
                 </div>
 
                 <div class="action-group" style="width: 100%;">
-                    <button class="btn-primary" onclick="generateAndSave()" id="saveBtn">
-                        <span>分享結果</span>
-                        <span class="btn-small">MINT COLLECTIBLE CARD</span>
+                    <button class="btn-primary luxury-shine" onclick="generateAndSave()" id="saveBtn">
+                        <span class="btn-main-text">分享結果</span>
+                        <span class="btn-sub-text">EXTRACT VISUAL REPORT</span>
                     </button>
                     
                     <div style="font-size: 0.55rem; color: #888; text-align: center; margin-top: 15px; cursor: pointer; letter-spacing: 1px;" onclick="window.open('https://instagram.com/eden_d_photo','_blank')">
@@ -448,8 +491,8 @@
             <div style="font-size: 0.7rem; color: var(--accent); margin-bottom: 20px; letter-spacing: 2px;">CALIBRATION ( <span id="qNum">1</span> / 5 )</div>
             <div class="quiz-q" id="qText">...</div>
             <div class="quiz-opts">
-                <button class="q-btn" onclick="handleAnswer(0)" id="btnA">A</button>
-                <button class="q-btn" onclick="handleAnswer(1)" id="btnB">B</button>
+                <button class="q-btn luxury-shine" onclick="handleAnswer(0)" id="btnA">A</button>
+                <button class="q-btn luxury-shine" onclick="handleAnswer(1)" id="btnB">B</button>
             </div>
         </div>
     </div>
@@ -490,7 +533,6 @@
     </div>
 
     <script>
-        // 資料庫升級：加入 matches (契合人格)
         const archetypeMatrix = {
             "Charisma-Ruler": { en: "THE KING", cn: "天生王者", desc: "你擁有令人無法忽視的光芒與掌控力。你的親和力是用來統治的手段。", matches: ["THE MUSE", "THE DIPLOMAT"] },
             "Charisma-Creator": { en: "THE MAVERICK", cn: "叛逆領袖", desc: "你不遵循規則，你創造規則。你的魅力來自於那種危險的不可預測性。", matches: ["THE OBSERVER", "THE ALCHEMIST"] },
@@ -657,11 +699,11 @@
 
             let gap = Math.abs(state.visPower - internalPower);
 
-            // --- 更新手機預覽介面 (Mobile UI) ---
+            // 更新手機預覽介面 (Mobile UI)
             document.getElementById('resultPanel').style.display = 'flex';
             document.getElementById('uiEn').innerText = result.en;
             document.getElementById('uiCn').innerText = result.cn;
-            document.getElementById('uiDesc').innerText = result.desc; // 新增：描述
+            document.getElementById('uiDesc').innerText = result.desc;
 
             // 更新手機儀表板
             document.getElementById('uiVis').innerText = state.visWarmth + "%";
@@ -673,13 +715,13 @@
             else if(gap < 20) gapEl.style.color = "var(--accent)";
             else gapEl.style.color = "#fff";
 
-            // 新增：更新契合人格
+            // 更新契合人格
             if (result.matches && result.matches.length >= 2) {
                 document.getElementById('uiMatch1').innerText = result.matches[0];
                 document.getElementById('uiMatch2').innerText = result.matches[1];
             }
 
-            // --- 更新匯出卡片 (Export Card) - 保持不變 ---
+            // 更新匯出卡片
             let gapText = "";
             if(gap > 40) gapText = `<span style="color:#A03030">HIGH (${gap}%)</span> - 你的外在信號正在背叛你的真實意圖。`;
             else if (gap > 20) gapText = `MODERATE (${gap}%) - 你的保護色運作良好，但偶爾會阻礙連結。`;
@@ -697,8 +739,9 @@
 
         function generateAndSave() {
             const btn = document.getElementById('saveBtn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = "MINTING CARD...";
+            const mainText = btn.querySelector('.btn-main-text');
+            const originalText = mainText.innerText;
+            mainText.innerText = "MINTING...";
             btn.style.background = "#fff";
 
             const target = document.getElementById('exportCard');
@@ -716,10 +759,11 @@
                 link.click();
 
                 setTimeout(() => {
-                    btn.innerHTML = "COLLECTED!";
+                    mainText.innerText = "COLLECTED!";
                     btn.style.background = "var(--accent)";
                     setTimeout(() => {
-                        btn.innerHTML = originalText;
+                        mainText.innerText = originalText;
+                        btn.style.background = "transparent";
                     }, 3000);
                 }, 500);
             });
