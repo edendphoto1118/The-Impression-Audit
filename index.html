@@ -6,14 +6,15 @@
     <title>EDEN | Social Mask Decoder</title>
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Inter:wght@300;400;600&family=Noto+Sans+TC:wght@300;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Inter:wght@300;400;600&family=Noto+Sans+TC:wght@300;500;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --bg-deep: #050505;
             --text-main: #E0E0E0;
             --text-muted: #888888;
-            --accent: #C0A060;
+            --accent: #C0A060; /* 香檳金 */
+            --accent-dim: rgba(192, 160, 96, 0.1);
             --alert: #A03030;
         }
 
@@ -41,7 +42,7 @@
             max-height: 900px;
             background: #000;
             overflow: hidden;
-            box-shadow: 0 0 60px rgba(0,0,0,0.8);
+            box-shadow: 0 0 80px rgba(0,0,0,0.9);
         }
 
         /* 背景與遮罩 */
@@ -54,10 +55,16 @@
             transition: transform 3s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 1s ease;
         }
 
+        /* 優化後的電影漸層：更柔和 */
         .vignette {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(5,5,5,0) 40%, rgba(5,5,5,0.6) 65%, rgba(5,5,5,0.95) 90%, #050505 100%);
+            background: linear-gradient(to bottom, 
+                rgba(5,5,5,0.2) 0%, 
+                rgba(5,5,5,0) 30%, 
+                rgba(5,5,5,0.4) 60%, 
+                rgba(5,5,5,0.9) 85%, 
+                #050505 100%);
             z-index: 2;
             pointer-events: none;
         }
@@ -65,7 +72,7 @@
         .noise-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            opacity: 0.06;
+            opacity: 0.07;
             background: url('https://www.transparenttextures.com/patterns/stardust.png');
             z-index: 3;
             pointer-events: none;
@@ -85,30 +92,46 @@
         .top-brand {
             font-family: 'Cinzel', serif;
             font-size: 0.65rem;
-            letter-spacing: 3px;
-            color: rgba(255,255,255,0.4);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding-bottom: 10px;
+            letter-spacing: 4px; /* 更寬的字距 */
+            color: rgba(255,255,255,0.5);
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            padding-bottom: 12px;
             display: flex;
             justify-content: space-between;
         }
 
+        /* 上傳按鈕：極簡風格 */
         .upload-btn {
             align-self: center;
             margin-top: 50%;
             transform: translateY(-50%);
-            border: 1px solid rgba(255,255,255,0.15);
-            padding: 25px 50px;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 30px 40px;
             text-align: center;
-            background: rgba(0,0,0,0.4);
-            backdrop-filter: blur(8px);
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
             cursor: pointer;
-            transition: all 0.4s ease;
+            transition: all 0.5s ease;
             pointer-events: auto;
         }
-        .upload-btn:hover { border-color: var(--accent); background: rgba(192, 160, 96, 0.1); }
-        .btn-title { font-family: 'Cinzel', serif; font-size: 1.3rem; letter-spacing: 2px; color: #fff; margin-bottom: 5px;}
-        .btn-sub { font-size: 0.7rem; color: var(--accent); letter-spacing: 1px; text-transform: uppercase; }
+        .upload-btn:hover { 
+            border-color: var(--accent); 
+            background: rgba(192, 160, 96, 0.08); 
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+        .btn-title { 
+            font-family: 'Cinzel', serif; 
+            font-size: 1.2rem; 
+            letter-spacing: 3px; 
+            color: #fff; 
+            margin-bottom: 8px;
+        }
+        .btn-sub { 
+            font-size: 0.7rem; 
+            color: var(--accent); 
+            letter-spacing: 2px; 
+            text-transform: uppercase; 
+        }
 
         input[type="file"] { display: none; }
 
@@ -120,133 +143,135 @@
             flex-direction: column;
             justify-content: flex-end;
             text-align: left;
-            margin-bottom: 10px;
+            padding-bottom: 10px;
         }
 
         .archetype-en {
             font-family: 'Cinzel', serif;
             font-size: 3.2rem;
-            font-weight: 400;
-            line-height: 0.9;
+            font-weight: 500;
+            line-height: 0.95;
             color: #fff;
-            margin-bottom: 8px;
-            text-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            letter-spacing: -1px;
+            margin-bottom: 10px;
+            text-shadow: 0 10px 40px rgba(0,0,0,0.9);
+            letter-spacing: -0.5px;
         }
         
         .archetype-cn {
             font-size: 1.1rem;
             font-weight: 500;
-            letter-spacing: 8px;
+            letter-spacing: 10px; /* 極寬字距 */
             color: var(--accent);
-            margin-bottom: 25px;
+            margin-bottom: 30px;
             text-transform: uppercase;
-            text-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            padding-left: 3px;
+            text-shadow: 0 5px 20px rgba(0,0,0,0.8);
+            padding-left: 4px;
         }
 
-        .stats-container { width: 100%; padding-right: 15%; margin-bottom: 20px; }
+        .stats-container { width: 100%; padding-right: 15%; margin-bottom: 25px; }
         .stats-bar { margin-bottom: 15px; }
-        .bar-label { display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; font-family: 'Inter', sans-serif; }
-        .progress-bg { width: 100%; height: 2px; background: rgba(255,255,255,0.1); }
+        .bar-label { display: flex; justify-content: space-between; font-size: 0.6rem; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 2px; font-family: 'Inter', sans-serif; }
+        .progress-bg { width: 100%; height: 1px; background: rgba(255,255,255,0.15); }
         .progress-fill { height: 100%; width: 0%; transition: width 2s cubic-bezier(0.22, 1, 0.36, 1); position: relative; }
-        #barVisual { background: #fff; box-shadow: 0 0 8px rgba(255,255,255,0.4); }
-        #barInner { background: var(--accent); box-shadow: 0 0 8px rgba(192, 160, 96, 0.4); }
+        #barVisual { background: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.3); }
+        #barInner { background: var(--accent); box-shadow: 0 0 10px rgba(192, 160, 96, 0.3); }
 
-        .mis-index-box { display: flex; align-items: center; gap: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; margin-top: 5px; padding-bottom: 15px; }
-        .mis-score { font-family: 'Cinzel', serif; font-size: 2.5rem; color: var(--alert); text-shadow: 0 0 20px rgba(160, 48, 48, 0.3); min-width: 80px; }
-        .mis-text { font-size: 0.75rem; color: #ccc; line-height: 1.6; font-weight: 300; }
-        .mis-label { color: var(--alert); font-size: 0.6rem; font-weight: 700; letter-spacing: 1px; display: block; margin-bottom: 2px; }
+        .mis-index-box { display: flex; align-items: center; gap: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; margin-top: 10px; padding-bottom: 20px; }
+        .mis-score { font-family: 'Cinzel', serif; font-size: 2.8rem; color: var(--alert); text-shadow: 0 0 30px rgba(160, 48, 48, 0.4); min-width: 90px; }
+        .mis-text { font-size: 0.75rem; color: #ccc; line-height: 1.7; font-weight: 300; }
+        .mis-label { color: var(--alert); font-size: 0.6rem; font-weight: 700; letter-spacing: 1px; display: block; margin-bottom: 4px; }
 
-        /* --- 互動分享區 --- */
+        /* --- 互動分享區 (美學升級) --- */
         .share-section { margin-top: 15px; }
 
         .tag-row {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 12px;
+            margin-bottom: 20px;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.6rem;
+            font-size: 0.65rem;
             color: #666;
+            opacity: 0.8;
         }
         
         .copy-tag {
             color: var(--accent);
-            border: 1px solid rgba(192, 160, 96, 0.3);
-            padding: 4px 8px;
-            border-radius: 4px;
+            border-bottom: 1px dotted var(--accent); /* 只有底線，更優雅 */
+            padding-bottom: 2px;
             cursor: pointer;
-            transition: 0.2s;
-            background: rgba(192, 160, 96, 0.05);
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            transition: 0.3s;
             pointer-events: auto;
         }
-        .copy-tag:hover { background: var(--accent); color: #000; }
-        .copy-tag:active { transform: scale(0.95); }
+        .copy-tag:hover { color: #fff; border-bottom-color: #fff; }
 
-        /* 分享按鈕 (更新樣式) */
+        /* 分享按鈕 (Ghost Button Style) */
         .share-btn {
-            background: var(--text-main);
-            color: #000;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.8rem;
-            font-weight: 700;
-            letter-spacing: 2px;
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent); /* 極細金框 */
+            font-family: 'Cinzel', serif; /* 與標題字體一致 */
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 3px;
             text-transform: uppercase;
-            padding: 16px 0;
+            padding: 18px 0;
             width: 100%;
             text-align: center;
             cursor: pointer;
-            border: none;
-            transition: 0.3s;
+            transition: all 0.4s ease;
             pointer-events: auto;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
+            position: relative;
+            overflow: hidden;
         }
-        .share-btn:hover { background: var(--accent); box-shadow: 0 0 20px rgba(192, 160, 96, 0.3); }
+        
+        .share-btn:hover { 
+            background: var(--accent); 
+            color: #000; 
+            box-shadow: 0 0 40px rgba(192, 160, 96, 0.2);
+        }
 
         .footer-credit {
-            font-size: 0.55rem;
-            color: #444;
+            font-size: 0.5rem;
+            color: #333; /* 極暗 */
             text-align: center;
-            margin-top: 12px;
+            margin-top: 15px;
             letter-spacing: 2px;
             cursor: pointer;
             pointer-events: auto;
+            transition: 0.3s;
         }
+        .footer-credit:hover { color: var(--accent); }
 
+        /* Toast 提示 (更高級的黑底) */
         .toast-msg {
             position: absolute;
-            bottom: 80px;
+            bottom: 100px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(255,255,255,0.9);
-            color: #000;
-            padding: 8px 16px;
-            border-radius: 20px;
+            background: #111;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 10px 20px;
+            font-family: 'Cinzel', serif;
             font-size: 0.7rem;
-            font-weight: 700;
+            letter-spacing: 2px;
             opacity: 0;
-            transition: 0.3s;
+            transition: 0.4s;
             pointer-events: none;
             z-index: 100;
-            letter-spacing: 1px;
         }
-        .toast-msg.show { opacity: 1; bottom: 90px; }
+        .toast-msg.show { opacity: 1; bottom: 110px; }
 
-        .quiz-modal { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(25px); border-top: 1px solid rgba(255,255,255,0.1); padding: 50px 30px; border-radius: 30px 30px 0 0; z-index: 20; transform: translateY(110%); transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1); pointer-events: auto; text-align: center; box-shadow: 0 -20px 50px rgba(0,0,0,0.8); }
+        .quiz-modal { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(5, 5, 5, 0.95); backdrop-filter: blur(30px); border-top: 1px solid rgba(255,255,255,0.1); padding: 50px 30px; border-radius: 0; z-index: 20; transform: translateY(110%); transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1); pointer-events: auto; text-align: center; box-shadow: 0 -20px 80px rgba(0,0,0,1); }
         .quiz-modal.active { transform: translateY(0); }
-        .quiz-question { font-size: 1.2rem; margin-bottom: 40px; font-weight: 300; line-height: 1.4; color: #fff; }
-        .quiz-options { display: flex; gap: 15px; justify-content: center; }
-        .option-btn { flex: 1; padding: 18px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #ddd; font-size: 0.85rem; cursor: pointer; transition: 0.3s; }
+        .quiz-question { font-family: 'Noto Sans TC', sans-serif; font-size: 1.2rem; margin-bottom: 50px; font-weight: 300; line-height: 1.6; color: #fff; letter-spacing: 1px; }
+        .quiz-options { display: flex; gap: 20px; justify-content: center; }
+        .option-btn { flex: 1; padding: 20px; background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #ddd; font-size: 0.85rem; cursor: pointer; transition: 0.3s; letter-spacing: 1px; }
+        .option-btn:hover { border-color: var(--accent); background: var(--accent-dim); }
         .option-btn:active { background: var(--accent); color: #000; }
-        .scan-beam { position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: #fff; box-shadow: 0 0 15px #fff, 0 0 30px var(--accent); z-index: 5; display: none; animation: beam 2s infinite ease-in-out; opacity: 0.9; }
+        .scan-beam { position: absolute; top: 0; left: 0; width: 100%; height: 1px; background: #fff; box-shadow: 0 0 20px #fff, 0 0 40px var(--accent); z-index: 5; display: none; animation: beam 2.5s infinite ease-in-out; opacity: 0.8; }
         @keyframes beam { 0% {top:0} 50% {top:100%} 100% {top:0} }
 
     </style>
@@ -259,7 +284,7 @@
         <div class="noise-overlay"></div>
         <div class="scan-beam" id="scanBeam"></div>
         
-        <div class="toast-msg" id="toast">TAGS COPIED!</div>
+        <div class="toast-msg" id="toast">TAGS COPIED</div>
 
         <div class="ui-layer" id="uiLayer">
             
@@ -304,10 +329,11 @@
                     <div class="tag-row">
                         <span>> COPY TAGS:</span>
                         <div class="copy-tag" onclick="copyHashtag('#SocialMaskDecoder')">#SocialMaskDecoder</div>
+                        <div class="copy-tag" onclick="copyHashtag('#EDEN')">#EDEN</div>
                     </div>
                     
                     <button class="share-btn" onclick="shareCard()" id="shareBtn">
-                        <span class="save-icon">📤</span> 分享診斷結果 (SHARE)
+                        SHARE DIAGNOSIS
                     </button>
 
                     <div class="footer-credit" onclick="window.open('https://instagram.com/eden_d_photo','_blank')">
@@ -318,7 +344,7 @@
         </div>
 
         <div class="quiz-modal" id="quizModal">
-            <div style="font-size:0.6rem; color:var(--accent); margin-bottom:20px; letter-spacing:4px;">CALIBRATING SOUL...</div>
+            <div style="font-size:0.65rem; color:var(--accent); margin-bottom:30px; letter-spacing:4px; font-family:'Cinzel',serif;">CALIBRATING SOUL...</div>
             <div class="quiz-question" id="quizText">...</div>
             <div class="quiz-options">
                 <div class="option-btn" id="optA" onclick="answerQuiz(0)">A</div>
@@ -430,13 +456,12 @@
             });
         }
 
-        // --- 分享/下載邏輯 (Hybrid) ---
         function shareCard() {
             const btn = document.getElementById('shareBtn');
-            const originalText = btn.innerHTML;
+            const originalText = btn.innerText;
             
-            btn.innerHTML = "GENERATING...";
-            btn.style.background = "#fff";
+            btn.innerText = "GENERATING...";
+            btn.style.background = "var(--text-main)";
             btn.style.color = "#000";
 
             const container = document.getElementById('container');
@@ -446,8 +471,6 @@
                 scale: 2,
                 backgroundColor: null
             }).then(canvas => {
-                
-                // 嘗試 Web Share API (手機體驗)
                 canvas.toBlob(async (blob) => {
                     const file = new File([blob], "EDEN_Social_Mask.png", { type: "image/png" });
                     
@@ -458,32 +481,31 @@
                                 title: 'EDEN Social Mask',
                                 text: 'My Social Mask Diagnosis #EDEN'
                             });
-                            // 分享成功後恢復
-                            restoreButton(btn, originalText, "SHARED!");
+                            restoreButton(btn, originalText, "SHARED");
                             return;
                         } catch (err) {
-                            // 使用者取消分享或失敗，繼續執行下載
                             console.log("Share skipped, downloading instead.");
                         }
                     } 
                     
-                    // Fallback: 自動下載 (電腦體驗)
                     const link = document.createElement('a');
                     link.download = 'EDEN_Social_Mask.png';
                     link.href = canvas.toDataURL('image/png');
                     link.click();
                     
-                    restoreButton(btn, originalText, "READY TO POST");
+                    restoreButton(btn, originalText, "IMAGE SAVED");
                 });
             });
         }
 
         function restoreButton(btn, originalText, tempText) {
             setTimeout(() => {
-                btn.innerHTML = tempText;
+                btn.innerText = tempText;
                 btn.style.background = "var(--accent)";
                 setTimeout(() => {
-                    btn.innerHTML = originalText;
+                    btn.innerText = originalText;
+                    btn.style.background = "transparent";
+                    btn.style.color = "var(--accent)";
                 }, 3000);
             }, 500);
         }
