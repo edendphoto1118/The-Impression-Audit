@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>EDEN | Social Mask Decoder</title>
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -13,7 +13,7 @@
             --bg-deep: #050505;
             --text-main: #E0E0E0;
             --text-muted: #888888;
-            --accent: #C0A060; /* 香檳金 */
+            --accent: #C0A060;
             --accent-dim: rgba(192, 160, 96, 0.1);
             --alert: #A03030;
         }
@@ -26,7 +26,8 @@
             color: var(--text-main);
             margin: 0;
             padding: 0;
-            height: 100vh;
+            /* 關鍵修正：使用 dvh (Dynamic Viewport Height) 解決手機網址列遮擋問題 */
+            height: 100dvh; 
             width: 100vw;
             overflow: hidden;
             display: flex;
@@ -39,13 +40,21 @@
             width: 100%;
             height: 100%;
             max-width: 500px;
-            max-height: 900px;
+            /* 手機上佔滿全屏，桌機上限制高度 */
+            max-height: 100dvh; 
             background: #000;
             overflow: hidden;
             box-shadow: 0 0 80px rgba(0,0,0,0.9);
         }
 
-        /* 背景與遮罩 */
+        /* 桌面版這時候才會有最大高度限制 */
+        @media (min-width: 501px) {
+            .poster-container {
+                max-height: 900px;
+                border-radius: 2px;
+            }
+        }
+
         .bg-photo {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -55,7 +64,6 @@
             transition: transform 3s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 1s ease;
         }
 
-        /* 優化後的電影漸層：更柔和 */
         .vignette {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -78,7 +86,7 @@
             pointer-events: none;
         }
 
-        /* UI 層 */
+        /* UI 層：開啟滾動以防內容溢出 */
         .ui-layer {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -87,24 +95,34 @@
             flex-direction: column;
             justify-content: space-between;
             padding: 30px;
+            /* 關鍵修正：如果手機螢幕太短，允許 UI 內部滾動，確保按鈕點得到 */
+            overflow-y: auto; 
+            overflow-x: hidden;
+            /* 增加底部 padding 以防被 iPhone Home Bar 遮住 */
+            padding-bottom: 50px; 
         }
 
         .top-brand {
             font-family: 'Cinzel', serif;
             font-size: 0.65rem;
-            letter-spacing: 4px; /* 更寬的字距 */
+            letter-spacing: 4px;
             color: rgba(255,255,255,0.5);
             border-bottom: 1px solid rgba(255,255,255,0.15);
             padding-bottom: 12px;
             display: flex;
             justify-content: space-between;
+            flex-shrink: 0; /* 防止被壓縮 */
         }
 
-        /* 上傳按鈕：極簡風格 */
+        /* 上傳按鈕 */
+        .upload-container {
+            flex-grow: 1; /* 佔據中間空間 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .upload-btn {
-            align-self: center;
-            margin-top: 50%;
-            transform: translateY(-50%);
             border: 1px solid rgba(255,255,255,0.2);
             padding: 30px 40px;
             text-align: center;
@@ -114,24 +132,9 @@
             transition: all 0.5s ease;
             pointer-events: auto;
         }
-        .upload-btn:hover { 
-            border-color: var(--accent); 
-            background: rgba(192, 160, 96, 0.08); 
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
-        }
-        .btn-title { 
-            font-family: 'Cinzel', serif; 
-            font-size: 1.2rem; 
-            letter-spacing: 3px; 
-            color: #fff; 
-            margin-bottom: 8px;
-        }
-        .btn-sub { 
-            font-size: 0.7rem; 
-            color: var(--accent); 
-            letter-spacing: 2px; 
-            text-transform: uppercase; 
-        }
+        .upload-btn:hover { border-color: var(--accent); background: rgba(192, 160, 96, 0.08); box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+        .btn-title { font-family: 'Cinzel', serif; font-size: 1.2rem; letter-spacing: 3px; color: #fff; margin-bottom: 8px;}
+        .btn-sub { font-size: 0.7rem; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; }
 
         input[type="file"] { display: none; }
 
@@ -143,9 +146,10 @@
             flex-direction: column;
             justify-content: flex-end;
             text-align: left;
-            padding-bottom: 10px;
+            flex-shrink: 0; /* 防止內容被壓縮 */
         }
 
+        /* 手機版字體優化 */
         .archetype-en {
             font-family: 'Cinzel', serif;
             font-size: 3.2rem;
@@ -156,62 +160,71 @@
             text-shadow: 0 10px 40px rgba(0,0,0,0.9);
             letter-spacing: -0.5px;
         }
+        /* 小螢幕適配 */
+        @media (max-width: 400px) {
+            .archetype-en { font-size: 2.2rem; }
+            .ui-layer { padding: 20px; padding-bottom: 40px; }
+        }
         
         .archetype-cn {
             font-size: 1.1rem;
             font-weight: 500;
-            letter-spacing: 10px; /* 極寬字距 */
+            letter-spacing: 10px;
             color: var(--accent);
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             text-transform: uppercase;
             text-shadow: 0 5px 20px rgba(0,0,0,0.8);
             padding-left: 4px;
         }
+        @media (max-width: 400px) {
+            .archetype-cn { font-size: 0.9rem; letter-spacing: 6px; }
+        }
 
-        .stats-container { width: 100%; padding-right: 15%; margin-bottom: 25px; }
-        .stats-bar { margin-bottom: 15px; }
-        .bar-label { display: flex; justify-content: space-between; font-size: 0.6rem; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 2px; font-family: 'Inter', sans-serif; }
+        .stats-container { width: 100%; padding-right: 0; margin-bottom: 20px; }
+        .stats-bar { margin-bottom: 12px; }
+        .bar-label { display: flex; justify-content: space-between; font-size: 0.6rem; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 2px; font-family: 'Inter', sans-serif; }
         .progress-bg { width: 100%; height: 1px; background: rgba(255,255,255,0.15); }
         .progress-fill { height: 100%; width: 0%; transition: width 2s cubic-bezier(0.22, 1, 0.36, 1); position: relative; }
         #barVisual { background: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.3); }
         #barInner { background: var(--accent); box-shadow: 0 0 10px rgba(192, 160, 96, 0.3); }
 
-        .mis-index-box { display: flex; align-items: center; gap: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; margin-top: 10px; padding-bottom: 20px; }
-        .mis-score { font-family: 'Cinzel', serif; font-size: 2.8rem; color: var(--alert); text-shadow: 0 0 30px rgba(160, 48, 48, 0.4); min-width: 90px; }
-        .mis-text { font-size: 0.75rem; color: #ccc; line-height: 1.7; font-weight: 300; }
-        .mis-label { color: var(--alert); font-size: 0.6rem; font-weight: 700; letter-spacing: 1px; display: block; margin-bottom: 4px; }
+        .mis-index-box { display: flex; align-items: center; gap: 15px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; margin-top: 5px; padding-bottom: 15px; }
+        .mis-score { font-family: 'Cinzel', serif; font-size: 2.5rem; color: var(--alert); text-shadow: 0 0 30px rgba(160, 48, 48, 0.4); min-width: 80px; }
+        @media (max-width: 400px) { .mis-score { font-size: 2rem; min-width: 60px; } }
+        
+        .mis-text { font-size: 0.75rem; color: #ccc; line-height: 1.5; font-weight: 300; }
+        .mis-label { color: var(--alert); font-size: 0.6rem; font-weight: 700; letter-spacing: 1px; display: block; margin-bottom: 2px; }
 
-        /* --- 互動分享區 (美學升級) --- */
-        .share-section { margin-top: 15px; }
+        .share-section { margin-top: 10px; }
 
         .tag-row {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.65rem;
             color: #666;
             opacity: 0.8;
+            flex-wrap: wrap; /* 防止標籤在小螢幕換行跑版 */
         }
         
         .copy-tag {
             color: var(--accent);
-            border-bottom: 1px dotted var(--accent); /* 只有底線，更優雅 */
+            border-bottom: 1px dotted var(--accent);
             padding-bottom: 2px;
             cursor: pointer;
             transition: 0.3s;
             pointer-events: auto;
+            white-space: nowrap;
         }
-        .copy-tag:hover { color: #fff; border-bottom-color: #fff; }
 
-        /* 分享按鈕 (Ghost Button Style) */
         .share-btn {
             background: transparent;
             color: var(--accent);
-            border: 1px solid var(--accent); /* 極細金框 */
-            font-family: 'Cinzel', serif; /* 與標題字體一致 */
+            border: 1px solid var(--accent);
+            font-family: 'Cinzel', serif;
             font-size: 0.9rem;
             font-weight: 600;
             letter-spacing: 3px;
@@ -222,32 +235,25 @@
             cursor: pointer;
             transition: all 0.4s ease;
             pointer-events: auto;
-            position: relative;
-            overflow: hidden;
+            /* 關鍵：按鈕在手機上要有足夠觸控面積 */
+            min-height: 50px; 
         }
-        
-        .share-btn:hover { 
-            background: var(--accent); 
-            color: #000; 
-            box-shadow: 0 0 40px rgba(192, 160, 96, 0.2);
-        }
+        .share-btn:hover { background: var(--accent); color: #000; box-shadow: 0 0 40px rgba(192, 160, 96, 0.2); }
 
         .footer-credit {
             font-size: 0.5rem;
-            color: #333; /* 極暗 */
+            color: #333;
             text-align: center;
             margin-top: 15px;
             letter-spacing: 2px;
             cursor: pointer;
             pointer-events: auto;
-            transition: 0.3s;
+            padding-bottom: 10px; /* 給底部多一點空間 */
         }
-        .footer-credit:hover { color: var(--accent); }
 
-        /* Toast 提示 (更高級的黑底) */
         .toast-msg {
             position: absolute;
-            bottom: 100px;
+            bottom: 15%; /* 改為百分比，避免鍵盤彈出時遮擋 */
             left: 50%;
             transform: translateX(-50%);
             background: #111;
@@ -262,15 +268,19 @@
             pointer-events: none;
             z-index: 100;
         }
-        .toast-msg.show { opacity: 1; bottom: 110px; }
+        .toast-msg.show { opacity: 1; bottom: 18%; }
 
-        .quiz-modal { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(5, 5, 5, 0.95); backdrop-filter: blur(30px); border-top: 1px solid rgba(255,255,255,0.1); padding: 50px 30px; border-radius: 0; z-index: 20; transform: translateY(110%); transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1); pointer-events: auto; text-align: center; box-shadow: 0 -20px 80px rgba(0,0,0,1); }
+        /* 測驗模態框 */
+        .quiz-modal { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(5, 5, 5, 0.98); backdrop-filter: blur(30px); border-top: 1px solid rgba(255,255,255,0.1); padding: 40px 20px; border-radius: 0; z-index: 20; transform: translateY(110%); transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1); pointer-events: auto; text-align: center; box-shadow: 0 -20px 80px rgba(0,0,0,1); max-height: 80vh; overflow-y: auto; }
         .quiz-modal.active { transform: translateY(0); }
-        .quiz-question { font-family: 'Noto Sans TC', sans-serif; font-size: 1.2rem; margin-bottom: 50px; font-weight: 300; line-height: 1.6; color: #fff; letter-spacing: 1px; }
-        .quiz-options { display: flex; gap: 20px; justify-content: center; }
+        .quiz-question { font-family: 'Noto Sans TC', sans-serif; font-size: 1.1rem; margin-bottom: 40px; font-weight: 300; line-height: 1.6; color: #fff; letter-spacing: 1px; }
+        .quiz-options { display: flex; gap: 15px; justify-content: center; flex-direction: column; } /* 手機版改為垂直排列 */
+        @media (min-width: 400px) { .quiz-options { flex-direction: row; } }
+        
         .option-btn { flex: 1; padding: 20px; background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #ddd; font-size: 0.85rem; cursor: pointer; transition: 0.3s; letter-spacing: 1px; }
         .option-btn:hover { border-color: var(--accent); background: var(--accent-dim); }
         .option-btn:active { background: var(--accent); color: #000; }
+        
         .scan-beam { position: absolute; top: 0; left: 0; width: 100%; height: 1px; background: #fff; box-shadow: 0 0 20px #fff, 0 0 40px var(--accent); z-index: 5; display: none; animation: beam 2.5s infinite ease-in-out; opacity: 0.8; }
         @keyframes beam { 0% {top:0} 50% {top:100%} 100% {top:0} }
 
@@ -293,9 +303,11 @@
                 <span>VOL.01</span>
             </div>
 
-            <div class="upload-btn" id="uploadBtn" onclick="document.getElementById('fileInput').click()">
-                <div class="btn-title">UPLOAD PORTRAIT</div>
-                <div class="btn-sub">社交面具解碼 · 靈魂審計</div>
+            <div class="upload-container" id="uploadContainer">
+                <div class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                    <div class="btn-title">UPLOAD PORTRAIT</div>
+                    <div class="btn-sub">社交面具解碼 · 靈魂審計</div>
+                </div>
             </div>
             <input type="file" id="fileInput" accept="image/*">
 
@@ -369,15 +381,17 @@
 
         const fileInput = document.getElementById('fileInput');
         const bgPhoto = document.getElementById('bgPhoto');
-        const uploadBtn = document.getElementById('uploadBtn');
+        const uploadContainer = document.getElementById('uploadContainer'); // 改用 Container
         const scanBeam = document.getElementById('scanBeam');
         const quizModal = document.getElementById('quizModal');
 
         fileInput.addEventListener('change', async () => {
             const file = fileInput.files[0];
             if (!file) return;
-            uploadBtn.style.opacity = 0;
-            uploadBtn.style.pointerEvents = 'none';
+            
+            // 隱藏整個上傳容器，避免佔位
+            uploadContainer.style.display = 'none';
+            
             scanBeam.style.display = 'block';
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -464,13 +478,24 @@
             btn.style.background = "var(--text-main)";
             btn.style.color = "#000";
 
+            // 1. 為了截圖完美，暫時鎖定高度與滾動條
             const container = document.getElementById('container');
+            const uiLayer = document.getElementById('uiLayer');
+            
+            // 暫時強制展開內容以供截圖 (針對有滾動條的情況)
+            uiLayer.style.overflow = 'visible'; 
             
             html2canvas(container, {
                 useCORS: true,
-                scale: 2,
-                backgroundColor: null
+                scale: 3, // 提高解析度
+                backgroundColor: '#000',
+                windowWidth: container.scrollWidth,
+                windowHeight: container.scrollHeight
             }).then(canvas => {
+                
+                // 截圖完畢，恢復滾動
+                uiLayer.style.overflow = 'auto';
+
                 canvas.toBlob(async (blob) => {
                     const file = new File([blob], "EDEN_Social_Mask.png", { type: "image/png" });
                     
@@ -484,7 +509,7 @@
                             restoreButton(btn, originalText, "SHARED");
                             return;
                         } catch (err) {
-                            console.log("Share skipped, downloading instead.");
+                            console.log("Share skipped");
                         }
                     } 
                     
