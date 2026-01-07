@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>EDEN | Social Mask Decoder</title>
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Inter:wght@300;400;600&family=Noto+Sans+TC:wght@300;500;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;700&family=Inter:wght@300;400;600&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
     
     <style>
         :root {
@@ -26,6 +26,7 @@
             color: var(--text-main);
             margin: 0;
             padding: 0;
+            /* 使用 dvh 確保填滿手機實際可視高度 */
             height: 100dvh; 
             width: 100vw;
             overflow: hidden;
@@ -55,7 +56,7 @@
         .bg-photo {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover;
+            object-fit: cover; /* 關鍵：確保填充且不變形 */
             filter: grayscale(100%) contrast(115%) brightness(0.9);
             z-index: 1;
             transition: transform 3s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 1s ease;
@@ -91,9 +92,10 @@
             flex-direction: column;
             justify-content: space-between;
             padding: 30px;
+            /* 允許內容滾動，確保小手機也能點到按鈕 */
             overflow-y: auto; 
             overflow-x: hidden;
-            padding-bottom: 50px; 
+            padding-bottom: 40px; 
         }
 
         .top-brand {
@@ -207,26 +209,21 @@
             pointer-events: auto;
             white-space: nowrap;
         }
-        .copy-tag:hover { color: #fff; border-bottom-color: #fff; }
 
-        /* 按鈕樣式 (Luxury Ghost Button - No Emoji) */
+        /* --- 新版按鈕樣式 (中文主導) --- */
         .save-btn {
             background: transparent;
             color: var(--accent);
             border: 1px solid var(--accent);
-            font-family: 'Cinzel', serif; /* 電影標題字體 */
-            font-size: 0.85rem;
-            font-weight: 600;
-            letter-spacing: 2px; /* 增加字距，提升高級感 */
-            text-transform: uppercase;
-            padding: 18px 0;
+            padding: 12px 0;
             width: 100%;
             text-align: center;
             cursor: pointer;
             transition: all 0.4s ease;
             pointer-events: auto;
-            min-height: 50px; 
+            min-height: 55px; 
             display: flex;
+            flex-direction: column; /* 垂直排列 */
             justify-content: center;
             align-items: center;
         }
@@ -234,6 +231,21 @@
             background: var(--accent); 
             color: #000; 
             box-shadow: 0 0 30px rgba(192, 160, 96, 0.25); 
+        }
+        
+        .btn-main-text {
+            font-family: 'Noto Sans TC', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            margin-bottom: 4px;
+        }
+        
+        .btn-sub-text {
+            font-family: 'Cinzel', serif;
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            opacity: 0.8;
         }
 
         .footer-credit {
@@ -277,7 +289,6 @@
         .option-btn:hover { border-color: var(--accent); background: var(--accent-dim); }
         .option-btn:active { background: var(--accent); color: #000; }
         
-        /* GPU 加速動畫 */
         .scan-beam {
             position: absolute;
             top: 0; left: 0;
@@ -359,7 +370,8 @@
                     </div>
                     
                     <button class="save-btn" onclick="saveImage()" id="saveBtn">
-                        EXTRACT VISUAL REPORT (提取靈魂審計報告)
+                        <div class="btn-main-text">分享結果</div>
+                        <div class="btn-sub-text">EXTRACT VISUAL REPORT</div>
                     </button>
 
                     <div class="footer-credit" onclick="window.open('https://instagram.com/eden_d_photo','_blank')">
@@ -482,42 +494,56 @@
             });
         }
 
+        // --- 核心修正：精確截圖 ---
         function saveImage() {
             const btn = document.getElementById('saveBtn');
-            const originalText = btn.innerText;
-            const container = document.getElementById('container');
-            const uiLayer = document.getElementById('uiLayer');
+            const mainText = btn.querySelector('.btn-main-text');
+            const subText = btn.querySelector('.btn-sub-text');
+            const originalMain = mainText.innerText;
             
-            btn.innerText = "RENDERING...";
+            // 1. 改變按鈕狀態
+            mainText.innerText = "RENDERING...";
+            subText.style.display = "none"; // 隱藏副標，讓介面更乾淨
             btn.style.background = "var(--text-main)";
             btn.style.color = "#000";
 
-            // 暫時鎖定並展開
+            const container = document.getElementById('container');
+            const uiLayer = document.getElementById('uiLayer');
+            
+            // 2. 鎖定滾動並獲取精確尺寸
             uiLayer.scrollTo(0, 0); 
             uiLayer.style.overflow = 'visible'; 
+            const rect = container.getBoundingClientRect(); // 獲取絕對位置和尺寸
 
+            // 3. 執行截圖
             html2canvas(container, {
                 useCORS: true,
-                scale: 3, 
+                scale: Math.min(3, window.devicePixelRatio || 2), // 自動調整清晰度，最高3倍
                 backgroundColor: '#000',
-                width: container.offsetWidth,
-                height: container.offsetHeight,
-                scrollY: 0, 
-                scrollX: 0
+                // 關鍵：強制指定截圖的寬高和起始座標，解決變形問題
+                width: rect.width, 
+                height: rect.height,
+                x: rect.left,
+                y: rect.top + window.scrollY,
+                scrollX: 0,
+                scrollY: 0,
+                ignoreElements: (element) => element.id === 'toast' // 不截圖 Toast
             }).then(canvas => {
                 
-                uiLayer.style.overflow = 'auto'; // 恢復
+                uiLayer.style.overflow = 'auto'; // 恢復滾動
 
                 const link = document.createElement('a');
                 link.download = 'EDEN_Social_Mask.png';
                 link.href = canvas.toDataURL('image/png');
                 link.click();
                 
+                // 4. 恢復按鈕
                 setTimeout(() => {
-                    btn.innerText = "SAVED! READY TO POST";
+                    mainText.innerText = "SAVED! READY TO POST";
                     btn.style.background = "var(--accent)";
                     setTimeout(() => {
-                        btn.innerText = originalText;
+                        mainText.innerText = originalMain;
+                        subText.style.display = "block"; // 恢復副標
                         btn.style.background = "transparent";
                         btn.style.color = "var(--accent)";
                     }, 4000);
@@ -525,7 +551,8 @@
             }).catch(err => {
                 console.error(err);
                 uiLayer.style.overflow = 'auto'; 
-                btn.innerText = "ERROR, TRY AGAIN";
+                mainText.innerText = "ERROR, TRY AGAIN";
+                subText.style.display = "block";
             });
         }
     </script>
