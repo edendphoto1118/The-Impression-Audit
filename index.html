@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDEN | The Impression Audit</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    
+    <style>
+        :root {
+            --bg-color: #0a0a0a;
+            --text-main: #ffffff;
+            --accent: #d4af37; /* 香檳金 */
+            --grid: #333;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+
+        /* 上傳區域 */
+        .upload-container {
+            border: 1px dashed var(--grid);
+            padding: 40px;
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            cursor: pointer;
+            transition: 0.3s;
+            background: #111;
+        }
+
+        .upload-container:hover {
+            border-color: var(--accent);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .btn {
+            background-color: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background-color: var(--accent);
+            color: #000;
+        }
+
+        /* 預覽與掃描線特效 */
+        .preview-area {
+            position: relative;
+            margin-top: 20px;
+            display: none;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        img#uploadedImage {
+            width: 100%;
+            height: auto;
+            filter: grayscale(20%); /* 降低飽和度增加專業感 */
+            display: block;
+        }
+
+        canvas#overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        /* 掃描動畫 */
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+            animation: scan 2s infinite linear;
+            display: none;
+            z-index: 10;
+        }
+
+        @keyframes scan {
+            0% { top: 0%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        /* 分析結果區 */
+        .result-section {
+            width: 100%;
+            max-width: 600px;
+            margin-top: 40px;
+            display: none;
+            border-top: 1px solid var(--grid);
+            padding-top: 20px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .diagnosis-box {
+            background: #111;
+            border-left: 3px solid var(--accent);
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .diagnosis-title {
+            color: var(--accent);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .diagnosis-text {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #ddd;
+        }
+
+        .score-display {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .score-item {
+            text-align: center;
+        }
+        
+        .score-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--text-main);
+        }
+        
+        .score-label {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .cta-box {
+            margin-top: 30px;
+            text-align: center;
+            background: #1a1a1a;
+            padding: 20px;
+        }
+
+        .loader {
+            color: var(--accent);
+            margin-top: 20px;
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>The Impression Audit</h1>
+    <div class="subtitle">第一印象結構審計局 · Powered by EDEN</div>
+
+    <div class="upload-container" onclick="document.getElementById('imageUpload').click()">
+        <p>點擊上傳你的形象照 / 生活照</p>
+        <p style="font-size: 0.8rem; color: #666;">AI 在本地運算，照片不會上傳雲端</p>
+        <input type="file" id="imageUpload" accept="image/*">
+    </div>
+
+    <div class="loader" id="loader">正在載入神經網絡模型... (初次約需 10 秒)</div>
+    <div class="loader" id="analyzing">正在進行結構光影分析...</div>
+
+    <div class="preview-area" id="previewArea">
+        <div class="scan-line" id="scanLine"></div>
+        <img id="uploadedImage" />
+        <canvas id="overlay"></canvas>
+    </div>
+
+    <div class="result-section" id="resultSection">
+        
+        <div class="score-display">
+            <div class="score-item">
+                <div class="score-value" id="warmthScore">0</div>
+                <div class="score-label">WARMTH (溫暖度)</div>
+            </div>
+            <div class="score-item">
+                <div class="score-value" id="competenceScore">0</div>
+                <div class="score-label">COMPETENCE (權威感)</div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="radarChart"></canvas>
+        </div>
+
+        <div class="diagnosis-box">
+            <div class="diagnosis-title">ARCHITECTURAL DIAGNOSIS (結構診斷)</div>
+            <div class="diagnosis-text" id="diagnosisText">
+                分析中...
+            </div>
+        </div>
+
+        <div class="cta-box">
+            <p>光影結構決定了 80% 的氣場。</p>
+            <p>想要調整你的「視覺參數」？</p>
+            <button class="btn" onclick="window.location.href='https://instagram.com/eden_d_photo'">預約 EDEN 結構重塑</button>
+        </div>
+    </div>
+
+    <script>
+        // 1. 初始化變數
+        const imageUpload = document.getElementById('imageUpload');
+        const uploadedImage = document.getElementById('uploadedImage');
+        const resultSection = document.getElementById('resultSection');
+        const loader = document.getElementById('loader');
+        const analyzing = document.getElementById('analyzing');
+        const scanLine = document.getElementById('scanLine');
+        const previewArea = document.getElementById('previewArea');
+        let modelsLoaded = false;
+
+        // 2. 載入 Face-API 模型 (從 CDN)
+        Promise.all([
+            faceapi.nets.tinyFaceDetector.loadFromUri('https://justadudewhohacks.github.io/face-api.js/models'),
+            faceapi.nets.faceLandmark68Net.loadFromUri('https://justadudewhohacks.github.io/face-api.js/models'),
+            faceapi.nets.faceExpressionNet.loadFromUri('https://justadudewhohacks.github.io/face-api.js/models')
+        ]).then(() => {
+            modelsLoaded = true;
+            loader.style.display = 'none';
+            console.log('Models Loaded');
+        });
+
+        // 3. 處理圖片上傳
+        imageUpload.addEventListener('change', async () => {
+            if (!modelsLoaded) {
+                alert('AI 模型尚未載入完成，請稍等幾秒...');
+                return;
+            }
+
+            const file = imageUpload.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    uploadedImage.src = e.target.result;
+                    previewArea.style.display = 'block';
+                    resultSection.style.display = 'none';
+                    scanLine.style.display = 'block'; // 開始掃描動畫
+                    analyzing.style.display = 'block';
+
+                    // 等待圖片渲染
+                    uploadedImage.onload = async () => {
+                        await performAnalysis();
+                    };
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 4. 執行分析核心邏輯
+        async function performAnalysis() {
+            // 偵測人臉、特徵點、表情
+            const detections = await faceapi.detectAllFaces(uploadedImage, new faceapi.TinyFaceDetectorOptions())
+                .withFaceLandmarks()
+                .withFaceExpressions();
+
+            analyzing.style.display = 'none';
+            scanLine.style.display = 'none';
+
+            if (detections.length === 0) {
+                alert("無法偵測到人臉，請使用五官清晰的照片。");
+                return;
+            }
+
+            const detection = detections[0];
+            const expressions = detection.expressions;
+            
+            // --- 核心算法：將表情轉為「溫暖」與「權威」 ---
+            
+            // 溫暖度：快樂 + 驚訝 - 憤怒 (基礎分 30)
+            let warmth = 30 + (expressions.happy * 80) + (expressions.surprised * 20) - (expressions.angry * 30);
+            
+            // 權威感：中性 + 憤怒 - 快樂 - 恐懼 (基礎分 40)
+            let competence = 40 + (expressions.neutral * 60) + (expressions.angry * 20) - (expressions.happy * 30) - (expressions.fearful * 40);
+
+            // 修正範圍 0-100
+            warmth = Math.min(100, Math.max(0, Math.round(warmth)));
+            competence = Math.min(100, Math.max(0, Math.round(competence)));
+
+            // 顯示結果
+            resultSection.style.display = 'block';
+            document.getElementById('warmthScore').innerText = warmth;
+            document.getElementById('competenceScore').innerText = competence;
+
+            generateDiagnosis(warmth, competence, expressions);
+            renderChart(warmth, competence);
+        }
+
+        // 5. 生成建築師風格的診斷文案
+        function generateDiagnosis(warmth, competence, exp) {
+            let diagnosis = "";
+            let archetype = "";
+
+            // 判斷原型 (Archetype)
+            if (warmth > 70 && competence < 50) {
+                archetype = "【過度親和的里長伯 (The Over-Friendly)】";
+                diagnosis += "你的『親和力倒角 (Chamfer)』過大。雖然看起來好相處，但在商業談判中，這種表情缺乏『結構剛性』，容易被對方在潛意識中認定為可以隨意殺價的對象。<br><br><strong>EDEN 建議：</strong>你需要加強眼神的聚焦度，並在拍攝時使用『林布蘭光』來增加臉部陰影，提升權威感。";
+            } else if (warmth < 40 && competence > 70) {
+                archetype = "【冰冷的精英 (The Cold Monolith)】";
+                diagnosis += "你的『立面結構 (Facade)』極度封閉。這種高權威感在專業領域很好，但『視覺開窗率』太低，缺乏與觀眾的連接感。這在社交軟體上會讓人望而卻步。<br><br><strong>EDEN 建議：</strong>不需要大笑，只需要微調嘴角肌肉張力，並使用更柔和的漫射光 (Diffused Light) 來軟化邊緣。";
+            } else if (warmth > 60 && competence > 60) {
+                archetype = "【黃金比例領袖 (The Golden Ratio)】";
+                diagnosis += "你的面部情緒結構處於極佳的平衡狀態。既有足夠的『結構支撐 (權威)』，又保留了『視覺通透性 (溫暖)』。這是一張適合放在 CEO 簡介或高端合約上的照片。<br><br><strong>EDEN 建議：</strong>你的狀態很好，現在只需要更高級的材質質感(修圖/調色)來匹配你的氣場。";
+            } else {
+                archetype = "【模糊的結構體 (The Undefined)】";
+                diagnosis += "目前的表情數據顯示訊號模糊。你可能想要表現專業，但眼神中流露出『結構不穩定 (Uncertainty)』。這通常是因為拍攝時對自己缺乏自信，或者光線太平(Flat Light)導致面部缺乏層次。<br><br><strong>EDEN 建議：</strong>你需要一場有引導性的拍攝，用幾何構圖來輔助你的肢體語言。";
+            }
+
+            const finalHtml = `<strong>${archetype}</strong><br><br>${diagnosis}`;
+            document.getElementById('diagnosisText').innerHTML = finalHtml;
+        }
+
+        // 6. 繪製雷達圖
+        let myChart = null;
+        function renderChart(w, c) {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            
+            if (myChart) myChart.destroy();
+
+            myChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: '你的落點',
+                        data: [{x: w, y: c}],
+                        backgroundColor: '#d4af37',
+                        pointRadius: 8
+                    },
+                    {
+                        label: '理想領袖區間',
+                        data: [{x: 85, y: 85}],
+                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                        pointRadius: 30
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            min: 0, max: 100,
+                            title: { display: true, text: '溫暖親切度 (Warmth)', color: '#888' },
+                            grid: { color: '#333' },
+                            ticks: { color: '#666' }
+                        },
+                        y: {
+                            min: 0, max: 100,
+                            title: { display: true, text: '專業權威感 (Competence)', color: '#888' },
+                            grid: { color: '#333' },
+                            ticks: { color: '#666' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
