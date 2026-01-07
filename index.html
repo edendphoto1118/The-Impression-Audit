@@ -13,7 +13,7 @@
             --bg-deep: #050505;
             --text-main: #E0E0E0;
             --accent: #D4AF37; /* 正統香檳金 */
-            --accent-dim: rgba(212, 175, 55, 0.1);
+            --accent-dim: rgba(212, 175, 55, 0.2);
             --alert: #A03030;
         }
 
@@ -128,11 +128,23 @@
             color: var(--accent);
             letter-spacing: 5px;
             font-weight: 700;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
             text-shadow: 0 5px 20px rgba(0,0,0,0.8);
         }
 
-        /* 新增：手機版數據儀表板 (Dashboard) */
+        /* 新增：手機版描述文字 */
+        .preview-desc {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.9rem;
+            font-style: italic;
+            color: #ddd;
+            margin-bottom: 25px;
+            padding: 0 20px;
+            line-height: 1.4;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+        }
+
+        /* 手機版數據儀表板 */
         .mobile-stats {
             display: flex;
             width: 100%;
@@ -156,6 +168,39 @@
         
         .m-label { font-size: 0.6rem; color: #aaa; letter-spacing: 1px; margin-bottom: 4px; font-family: 'Montserrat', sans-serif;}
         .m-val { font-family: 'JetBrains Mono', monospace; color: #fff; font-size: 1rem; font-weight: 700; }
+
+        /* 新增：契合人格區塊 */
+        .match-section {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 25px;
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .match-label {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            color: #888;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .match-tags {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .match-tag {
+            font-family: 'Cinzel', serif;
+            font-size: 0.75rem;
+            color: var(--accent);
+            border: 1px solid var(--accent-dim);
+            padding: 8px 12px;
+            letter-spacing: 1px;
+            background: rgba(0,0,0,0.2);
+        }
 
         /* 操作按鈕 */
         .btn-primary {
@@ -358,6 +403,10 @@
             <div class="result-panel" id="resultPanel">
                 <div style="flex-grow:1;"></div> <div class="preview-title" id="uiEn">--</div>
                 <div class="preview-sub" id="uiCn">--</div>
+
+                <div class="preview-desc" id="uiDesc">
+                    --
+                </div>
                 
                 <div class="mobile-stats">
                     <div class="m-stat-item">
@@ -371,6 +420,14 @@
                     <div class="m-stat-item">
                         <span class="m-label">GAP</span>
                         <span class="m-val" id="uiGap" style="color:var(--accent)">0%</span>
+                    </div>
+                </div>
+
+                <div class="match-section">
+                    <div class="match-label">HIGHLY COMPATIBLE WITH (契合共鳴)</div>
+                    <div class="match-tags">
+                        <span class="match-tag" id="uiMatch1">--</span>
+                        <span class="match-tag" id="uiMatch2">--</span>
                     </div>
                 </div>
 
@@ -433,23 +490,27 @@
     </div>
 
     <script>
+        // 資料庫升級：加入 matches (契合人格)
         const archetypeMatrix = {
-            "Charisma-Ruler": { en: "THE KING", cn: "天生王者", desc: "你擁有令人無法忽視的光芒與掌控力。你的親和力是用來統治的手段。" },
-            "Charisma-Creator": { en: "THE MAVERICK", cn: "叛逆領袖", desc: "你不遵循規則，你創造規則。你的魅力來自於那種危險的不可預測性。" },
-            "Charisma-Sage": { en: "THE VISIONARY", cn: "遠見者", desc: "你看得比別人都遠。你的熱情不是為了社交，而是為了佈道你的真理。" },
-            "Charisma-Lover": { en: "THE IDOL", cn: "萬人迷", desc: "你是聚光燈的寵兒。所有人都以為是你照亮了他們，其實是你需要他們的目光。" },
-            "Affinity-Ruler": { en: "THE SMILING ASSASSIN", cn: "笑面殺手", desc: "最危險的人格。你看起來人畜無害，但內心早已佈局好了一切殺招。" },
-            "Affinity-Creator": { en: "THE MUSE", cn: "靈感繆斯", desc: "你的存在本身就是一種治癒。你用溫柔包裹著極度鋒利的創造力。" },
-            "Affinity-Sage": { en: "THE DIPLOMAT", cn: "外交官", desc: "你是群體中的潤滑劑。你用邏輯解決問題，用微笑解決人。" },
-            "Affinity-Lover": { en: "THE CAREGIVER", cn: "守護者", desc: "你把所有人都照顧得很好，除了你自己。你的溫暖有時是一種防禦。" },
-            "Authority-Ruler": { en: "THE EMPEROR", cn: "絕對統治者", desc: "表裡如一的強勢。不需要開口，你的氣場已經下達了指令。" },
-            "Authority-Creator": { en: "THE ARCHITECT", cn: "架構師", desc: "你對混亂零容忍。你用冰冷的理性，構建著完美無瑕的世界。" },
-            "Authority-Sage": { en: "THE JUDGE", cn: "審判者", desc: "你的目光如炬，沒有任何謊言能在你面前存活。真相是你唯一的信仰。" },
-            "Authority-Lover": { en: "THE PROTECTOR", cn: "鐵壁", desc: "你用冷酷武裝自己，只為了守護身後最柔軟的那一塊淨土。" },
-            "Mystery-Ruler": { en: "THE PUPPET MASTER", cn: "幕後操盤手", desc: "沒人知道你在想什麼，這正是你想要的。你在陰影中編織著命運的線。" },
-            "Mystery-Creator": { en: "THE ALCHEMIST", cn: "煉金術士", desc: "你將孤獨轉化為黃金。你的世界很小，但深不見底。" },
-            "Mystery-Sage": { en: "THE OBSERVER", cn: "局外人", desc: "你冷眼旁觀著這場名為人生的戲劇，從不輕易入戲。" },
-            "Mystery-Lover": { en: "THE GHOST", cn: "幽靈情人", desc: "你若即若離，讓人抓不住。你的疏離感反而是一種致命的吸引力。" }
+            "Charisma-Ruler": { en: "THE KING", cn: "天生王者", desc: "你擁有令人無法忽視的光芒與掌控力。你的親和力是用來統治的手段。", matches: ["THE MUSE", "THE DIPLOMAT"] },
+            "Charisma-Creator": { en: "THE MAVERICK", cn: "叛逆領袖", desc: "你不遵循規則，你創造規則。你的魅力來自於那種危險的不可預測性。", matches: ["THE OBSERVER", "THE ALCHEMIST"] },
+            "Charisma-Sage": { en: "THE VISIONARY", cn: "遠見者", desc: "你看得比別人都遠。你的熱情不是為了社交，而是為了佈道你的真理。", matches: ["THE ARCHITECT", "THE GHOST"] },
+            "Charisma-Lover": { en: "THE IDOL", cn: "萬人迷", desc: "你是聚光燈的寵兒。所有人都以為是你照亮了他們，其實是你需要他們的目光。", matches: ["THE CAREGIVER", "THE PROTECTOR"] },
+
+            "Affinity-Ruler": { en: "THE SMILING ASSASSIN", cn: "笑面殺手", desc: "最危險的人格。你看起來人畜無害，但內心早已佈局好了一切殺招。", matches: ["THE EMPEROR", "THE JUDGE"] },
+            "Affinity-Creator": { en: "THE MUSE", cn: "靈感繆斯", desc: "你的存在本身就是一種治癒。你用溫柔包裹著極度鋒利的創造力。", matches: ["THE KING", "THE MAVERICK"] },
+            "Affinity-Sage": { en: "THE DIPLOMAT", cn: "外交官", desc: "你是群體中的潤滑劑。你用邏輯解決問題，用微笑解決人。", matches: ["THE KING", "THE ARCHITECT"] },
+            "Affinity-Lover": { en: "THE CAREGIVER", cn: "守護者", desc: "你把所有人都照顧得很好，除了你自己。你的溫暖有時是一種防禦。", matches: ["THE IDOL", "THE PROTECTOR"] },
+
+            "Authority-Ruler": { en: "THE EMPEROR", cn: "絕對統治者", desc: "表裡如一的強勢。不需要開口，你的氣場已經下達了指令。", matches: ["THE SMILING ASSASSIN", "THE DIPLOMAT"] },
+            "Authority-Creator": { en: "THE ARCHITECT", cn: "架構師", desc: "你對混亂零容忍。你用冰冷的理性，構建著完美無瑕的世界。", matches: ["THE VISIONARY", "THE DIPLOMAT"] },
+            "Authority-Sage": { en: "THE JUDGE", cn: "審判者", desc: "你的目光如炬，沒有任何謊言能在你面前存活。真相是你唯一的信仰。", matches: ["THE SMILING ASSASSIN", "THE PUPPET MASTER"] },
+            "Authority-Lover": { en: "THE PROTECTOR", cn: "鐵壁", desc: "你用冷酷武裝自己，只為了守護身後最柔軟的那一塊淨土。", matches: ["THE IDOL", "THE CAREGIVER"] },
+
+            "Mystery-Ruler": { en: "THE PUPPET MASTER", cn: "幕後操盤手", desc: "沒人知道你在想什麼，這正是你想要的。你在陰影中編織著命運的線。", matches: ["THE JUDGE", "THE OBSERVER"] },
+            "Mystery-Creator": { en: "THE ALCHEMIST", cn: "煉金術士", desc: "你將孤獨轉化為黃金。你的世界很小，但深不見底。", matches: ["THE MAVERICK", "THE GHOST"] },
+            "Mystery-Sage": { en: "THE OBSERVER", cn: "局外人", desc: "你冷眼旁觀著這場名為人生的戲劇，從不輕易入戲。", matches: ["THE PUPPET MASTER", "THE MAVERICK"] },
+            "Mystery-Lover": { en: "THE GHOST", cn: "幽靈情人", desc: "你若即若離，讓人抓不住。你的疏離感反而是一種致命的吸引力。", matches: ["THE VISIONARY", "THE ALCHEMIST"] }
         };
 
         const quizData = [
@@ -490,7 +551,6 @@
                 previewImg.style.display = 'block';
                 uploadArea.style.display = 'none';
                 
-                // 產生匯出用的裁切圖
                 cropImageTo916(evt.target.result).then(croppedDataUrl => {
                     document.getElementById('exportBg').src = croppedDataUrl;
                 });
@@ -597,29 +657,34 @@
 
             let gap = Math.abs(state.visPower - internalPower);
 
-            // 更新手機預覽介面 (Mobile Stats)
+            // --- 更新手機預覽介面 (Mobile UI) ---
             document.getElementById('resultPanel').style.display = 'flex';
             document.getElementById('uiEn').innerText = result.en;
             document.getElementById('uiCn').innerText = result.cn;
-            
-            // 填入手機版儀表板數據
+            document.getElementById('uiDesc').innerText = result.desc; // 新增：描述
+
+            // 更新手機儀表板
             document.getElementById('uiVis').innerText = state.visWarmth + "%";
             document.getElementById('uiSoul').innerText = internalPower + "%";
             document.getElementById('uiGap').innerText = gap + "%";
             
-            // Gap 顏色邏輯
             const gapEl = document.getElementById('uiGap');
             if(gap > 40) gapEl.style.color = "var(--alert)";
             else if(gap < 20) gapEl.style.color = "var(--accent)";
             else gapEl.style.color = "#fff";
 
-            // 產生誤解指數文案 (給卡片用)
+            // 新增：更新契合人格
+            if (result.matches && result.matches.length >= 2) {
+                document.getElementById('uiMatch1').innerText = result.matches[0];
+                document.getElementById('uiMatch2').innerText = result.matches[1];
+            }
+
+            // --- 更新匯出卡片 (Export Card) - 保持不變 ---
             let gapText = "";
             if(gap > 40) gapText = `<span style="color:#A03030">HIGH (${gap}%)</span> - 你的外在信號正在背叛你的真實意圖。`;
             else if (gap > 20) gapText = `MODERATE (${gap}%) - 你的保護色運作良好，但偶爾會阻礙連結。`;
             else gapText = `<span style="color:#D4AF37">LOW (${gap}%)</span> - 表裡如一。你的靈魂與外表頻率高度同步。`;
 
-            // 更新匯出卡片
             document.getElementById('cardEn').innerText = result.en;
             document.getElementById('cardCn').innerText = result.cn;
             document.getElementById('cardDesc').innerText = result.desc;
