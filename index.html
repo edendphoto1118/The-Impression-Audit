@@ -26,7 +26,6 @@
             color: var(--text-main);
             margin: 0;
             padding: 0;
-            /* 使用 dvh 確保填滿手機實際可視高度 */
             height: 100dvh; 
             width: 100vw;
             overflow: hidden;
@@ -41,7 +40,7 @@
             height: 100%;
             max-width: 500px;
             max-height: 100dvh;
-            background: #000;
+            background: #000; /* 確保底色是黑的 */
             overflow: hidden;
             box-shadow: 0 0 80px rgba(0,0,0,0.9);
         }
@@ -56,7 +55,8 @@
         .bg-photo {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover; /* 關鍵：確保填充且不變形 */
+            object-fit: cover;
+            /* 這裡保留濾鏡，截圖時如果變黑，腳本會處理 */
             filter: grayscale(100%) contrast(115%) brightness(0.9);
             z-index: 1;
             transition: transform 3s cubic-bezier(0.25, 0.46, 0.45, 0.94), filter 1s ease;
@@ -92,11 +92,14 @@
             flex-direction: column;
             justify-content: space-between;
             padding: 30px;
-            /* 允許內容滾動，確保小手機也能點到按鈕 */
             overflow-y: auto; 
             overflow-x: hidden;
             padding-bottom: 40px; 
         }
+
+        /* 隱藏滾動條但保持功能 */
+        .ui-layer::-webkit-scrollbar { display: none; }
+        .ui-layer { -ms-overflow-style: none; scrollbar-width: none; }
 
         .top-brand {
             font-family: 'Cinzel', serif;
@@ -210,7 +213,6 @@
             white-space: nowrap;
         }
 
-        /* --- 新版按鈕樣式 (中文主導) --- */
         .save-btn {
             background: transparent;
             color: var(--accent);
@@ -223,7 +225,7 @@
             pointer-events: auto;
             min-height: 55px; 
             display: flex;
-            flex-direction: column; /* 垂直排列 */
+            flex-direction: column;
             justify-content: center;
             align-items: center;
         }
@@ -494,65 +496,59 @@
             });
         }
 
-        // --- 核心修正：精確截圖 ---
+        // --- 核心修正：座標偏移與黑屏修復 ---
         function saveImage() {
             const btn = document.getElementById('saveBtn');
             const mainText = btn.querySelector('.btn-main-text');
             const subText = btn.querySelector('.btn-sub-text');
             const originalMain = mainText.innerText;
-            
-            // 1. 改變按鈕狀態
-            mainText.innerText = "RENDERING...";
-            subText.style.display = "none"; // 隱藏副標，讓介面更乾淨
-            btn.style.background = "var(--text-main)";
-            btn.style.color = "#000";
-
             const container = document.getElementById('container');
             const uiLayer = document.getElementById('uiLayer');
             
-            // 2. 鎖定滾動並獲取精確尺寸
-            uiLayer.scrollTo(0, 0); 
-            uiLayer.style.overflow = 'visible'; 
-            const rect = container.getBoundingClientRect(); // 獲取絕對位置和尺寸
+            // 1. 狀態更新
+            mainText.innerText = "RENDERING...";
+            subText.style.display = "none";
+            btn.style.background = "var(--text-main)";
+            btn.style.color = "#000";
 
-            // 3. 執行截圖
+            // 2. 準備工作：捲回頂部，確保元素位置正確
+            window.scrollTo(0,0);
+            uiLayer.scrollTo(0,0);
+            uiLayer.style.overflow = 'visible'; // 強制展開
+
+            // 3. 使用 html2canvas 捕捉
             html2canvas(container, {
                 useCORS: true,
-                scale: Math.min(3, window.devicePixelRatio || 2), // 自動調整清晰度，最高3倍
-                backgroundColor: '#000',
-                // 關鍵：強制指定截圖的寬高和起始座標，解決變形問題
-                width: rect.width, 
-                height: rect.height,
-                x: rect.left,
-                y: rect.top + window.scrollY,
-                scrollX: 0,
-                scrollY: 0,
-                ignoreElements: (element) => element.id === 'toast' // 不截圖 Toast
+                allowTaint: true, // 允許跨域圖片 (雖然這裡是 base64)
+                scale: 2, // Retina 支援，但不過大
+                backgroundColor: "#000", // 強制黑色背景，避免透明變黑
+                ignoreElements: (element) => element.id === 'toast'
             }).then(canvas => {
                 
-                uiLayer.style.overflow = 'auto'; // 恢復滾動
+                // 恢復滾動
+                uiLayer.style.overflow = 'auto';
 
                 const link = document.createElement('a');
                 link.download = 'EDEN_Social_Mask.png';
                 link.href = canvas.toDataURL('image/png');
                 link.click();
                 
-                // 4. 恢復按鈕
+                // 恢復按鈕
                 setTimeout(() => {
                     mainText.innerText = "SAVED! READY TO POST";
                     btn.style.background = "var(--accent)";
                     setTimeout(() => {
                         mainText.innerText = originalMain;
-                        subText.style.display = "block"; // 恢復副標
+                        subText.style.display = "block";
                         btn.style.background = "transparent";
                         btn.style.color = "var(--accent)";
                     }, 4000);
                 }, 800);
             }).catch(err => {
-                console.error(err);
-                uiLayer.style.overflow = 'auto'; 
+                console.error("Capture Failed:", err);
                 mainText.innerText = "ERROR, TRY AGAIN";
                 subText.style.display = "block";
+                uiLayer.style.overflow = 'auto';
             });
         }
     </script>
