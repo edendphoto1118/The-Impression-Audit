@@ -26,7 +26,6 @@
             color: var(--text-main);
             margin: 0;
             padding: 0;
-            /* 使用 dvh 確保填滿手機實際可視高度 */
             height: 100dvh; 
             width: 100vw;
             overflow: hidden;
@@ -92,7 +91,6 @@
             flex-direction: column;
             justify-content: space-between;
             padding: 30px;
-            /* 允許內容滾動，確保小手機也能點到按鈕 */
             overflow-y: auto; 
             overflow-x: hidden;
             padding-bottom: 50px; 
@@ -209,16 +207,17 @@
             pointer-events: auto;
             white-space: nowrap;
         }
+        .copy-tag:hover { color: #fff; border-bottom-color: #fff; }
 
-        /* 按鈕樣式 (Luxury Ghost Button) */
+        /* 按鈕樣式 (Luxury Ghost Button - No Emoji) */
         .save-btn {
             background: transparent;
             color: var(--accent);
             border: 1px solid var(--accent);
-            font-family: 'Cinzel', serif;
-            font-size: 0.9rem;
+            font-family: 'Cinzel', serif; /* 電影標題字體 */
+            font-size: 0.85rem;
             font-weight: 600;
-            letter-spacing: 3px;
+            letter-spacing: 2px; /* 增加字距，提升高級感 */
             text-transform: uppercase;
             padding: 18px 0;
             width: 100%;
@@ -230,9 +229,12 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 10px;
         }
-        .save-btn:hover { background: var(--accent); color: #000; box-shadow: 0 0 40px rgba(192, 160, 96, 0.2); }
+        .save-btn:hover { 
+            background: var(--accent); 
+            color: #000; 
+            box-shadow: 0 0 30px rgba(192, 160, 96, 0.25); 
+        }
 
         .footer-credit {
             font-size: 0.5rem;
@@ -243,7 +245,9 @@
             cursor: pointer;
             pointer-events: auto;
             padding-bottom: 10px;
+            transition: 0.3s;
         }
+        .footer-credit:hover { color: var(--accent); }
 
         .toast-msg {
             position: absolute;
@@ -273,10 +277,7 @@
         .option-btn:hover { border-color: var(--accent); background: var(--accent-dim); }
         .option-btn:active { background: var(--accent); color: #000; }
         
-        /* 優化後的掃描動畫 (Performance Fix)
-           1. 改用 transform: translateY 代替 top，啟用 GPU 加速，解決卡頓。
-           2. 初始位置設為 -100% (畫面外上方)，結束位置 200% (確保完全掃過)。
-        */
+        /* GPU 加速動畫 */
         .scan-beam {
             position: absolute;
             top: 0; left: 0;
@@ -286,8 +287,8 @@
             z-index: 5;
             display: none;
             opacity: 0.8;
-            will-change: transform; /* 提示瀏覽器優化 */
-            animation: beam 2s infinite linear; /* 使用 linear 避免來回的停頓感 */
+            will-change: transform; 
+            animation: beam 2s infinite linear; 
         }
 
         @keyframes beam {
@@ -358,7 +359,7 @@
                     </div>
                     
                     <button class="save-btn" onclick="saveImage()" id="saveBtn">
-                        📥 SAVE IMAGE (下載診斷卡)
+                        EXTRACT VISUAL REPORT (提取靈魂審計報告)
                     </button>
 
                     <div class="footer-credit" onclick="window.open('https://instagram.com/eden_d_photo','_blank')">
@@ -481,46 +482,39 @@
             });
         }
 
-        // --- 優化版下載功能 ---
         function saveImage() {
             const btn = document.getElementById('saveBtn');
             const originalText = btn.innerText;
             const container = document.getElementById('container');
             const uiLayer = document.getElementById('uiLayer');
             
-            // 1. 狀態回饋
             btn.innerText = "RENDERING...";
             btn.style.background = "var(--text-main)";
             btn.style.color = "#000";
 
-            // 2. 鎖定滾動，防止截圖跑版 (關鍵修正)
-            // 將視窗捲動回頂部，並暫時隱藏捲軸
+            // 暫時鎖定並展開
             uiLayer.scrollTo(0, 0); 
-            uiLayer.style.overflow = 'visible'; // 強制展開內容以供完整截圖
+            uiLayer.style.overflow = 'visible'; 
 
-            // 3. 執行截圖
             html2canvas(container, {
                 useCORS: true,
-                scale: 3, // 高清倍率
-                backgroundColor: '#000', // 防止透明底
+                scale: 3, 
+                backgroundColor: '#000',
                 width: container.offsetWidth,
                 height: container.offsetHeight,
                 scrollY: 0, 
                 scrollX: 0
             }).then(canvas => {
                 
-                // 4. 恢復介面狀態
-                uiLayer.style.overflow = 'auto';
+                uiLayer.style.overflow = 'auto'; // 恢復
 
-                // 5. 觸發下載
                 const link = document.createElement('a');
                 link.download = 'EDEN_Social_Mask.png';
                 link.href = canvas.toDataURL('image/png');
                 link.click();
                 
-                // 6. 恢復按鈕
                 setTimeout(() => {
-                    btn.innerText = "SAVED! OPEN IG TO POST";
+                    btn.innerText = "SAVED! READY TO POST";
                     btn.style.background = "var(--accent)";
                     setTimeout(() => {
                         btn.innerText = originalText;
@@ -530,7 +524,7 @@
                 }, 800);
             }).catch(err => {
                 console.error(err);
-                uiLayer.style.overflow = 'auto'; // 出錯也要恢復
+                uiLayer.style.overflow = 'auto'; 
                 btn.innerText = "ERROR, TRY AGAIN";
             });
         }
