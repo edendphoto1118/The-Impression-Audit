@@ -6,14 +6,14 @@
     <title>EDEN | Social Mask Decoder</title>
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Inter:wght@300;400;600&family=Noto+Sans+TC:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Inter:wght@300;400;600&family=Noto+Sans+TC:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;1,400&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --bg-deep: #050505;
             --text-main: #E0E0E0;
-            --accent: #C0A060;
-            --accent-dim: rgba(192, 160, 96, 0.15);
+            --accent: #D4AF37; /* 正統香檳金 */
+            --accent-dim: rgba(212, 175, 55, 0.1);
             --alert: #A03030;
         }
 
@@ -33,7 +33,7 @@
             align-items: center;
         }
 
-        /* --- 互動介面 (UI Layer) --- */
+        /* --- 主互動介面 --- */
         .app-container {
             position: relative;
             width: 100%;
@@ -49,12 +49,11 @@
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             object-fit: cover;
-            filter: grayscale(100%) contrast(110%) brightness(0.6);
-            opacity: 0.8;
+            /* 移除黑白濾鏡，保留原色，但稍微壓暗以利閱讀 */
+            filter: brightness(0.7); 
             z-index: 1;
         }
 
-        /* 介面內容層 (可滾動) */
         .ui-layer {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -64,22 +63,23 @@
             justify-content: space-between;
             padding: 30px;
             overflow-y: auto;
-            scrollbar-width: none; /* Firefox */
+            scrollbar-width: none;
         }
-        .ui-layer::-webkit-scrollbar { display: none; } /* Chrome */
+        .ui-layer::-webkit-scrollbar { display: none; }
 
         .brand-header {
-            font-family: 'Cinzel', serif;
-            font-size: 0.7rem;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.6rem;
             letter-spacing: 4px;
-            color: rgba(255,255,255,0.6);
+            color: rgba(255,255,255,0.7);
             text-align: center;
             margin-bottom: 20px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
             padding-bottom: 15px;
+            text-transform: uppercase;
         }
 
-        /* 上傳區塊 */
+        /* 上傳按鈕 */
         .upload-area {
             flex-grow: 1;
             display: flex;
@@ -89,8 +89,8 @@
         }
 
         .upload-circle {
-            width: 160px; height: 160px;
-            border: 1px dashed var(--accent);
+            width: 140px; height: 140px;
+            border: 1px solid rgba(255,255,255,0.3);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -98,65 +98,47 @@
             flex-direction: column;
             cursor: pointer;
             transition: 0.3s;
-            background: rgba(0,0,0,0.4);
-            backdrop-filter: blur(5px);
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
         }
-        .upload-circle:active { transform: scale(0.95); background: var(--accent-dim); }
-        
-        .upload-text { font-family: 'Cinzel', serif; margin-top: 10px; font-size: 0.8rem; letter-spacing: 2px; }
+        .upload-circle:hover { border-color: var(--accent); background: var(--accent-dim); }
+        .upload-text { font-family: 'Cinzel', serif; margin-top: 8px; font-size: 0.7rem; letter-spacing: 2px; }
 
-        /* 結果展示區 (螢幕上看到的簡略版) */
+        /* 手機預覽介面 */
         .result-panel {
-            display: none; /* 初始隱藏 */
+            display: none;
             flex-direction: column;
             align-items: center;
             text-align: center;
-            padding-bottom: 40px;
+            padding-bottom: 20px;
             animation: fadeIn 1s ease;
         }
 
-        .archetype-title {
+        .preview-title {
             font-family: 'Cinzel', serif;
-            font-size: 2.5rem;
+            font-size: 2rem;
             line-height: 1;
-            margin-bottom: 5px;
             color: #fff;
-            text-shadow: 0 0 20px rgba(0,0,0,0.8);
+            margin-bottom: 5px;
         }
-        .archetype-sub {
-            font-size: 1.2rem;
+        .preview-sub {
+            font-size: 1rem;
             color: var(--accent);
-            letter-spacing: 5px;
+            letter-spacing: 4px;
             font-weight: 700;
             margin-bottom: 20px;
-            text-transform: uppercase;
         }
 
-        .stats-simple {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 30px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.7rem;
-            color: #aaa;
-            border-top: 1px solid rgba(255,255,255,0.2);
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-            padding: 10px 0;
-        }
-
-        /* 按鈕群組 */
-        .action-group { width: 100%; display: flex; flex-direction: column; gap: 15px; }
-
+        /* 操作按鈕 */
         .btn-primary {
             background: var(--accent);
             color: #000;
             border: none;
-            padding: 18px;
+            padding: 15px;
             font-family: 'Noto Sans TC', sans-serif;
             font-weight: 700;
             letter-spacing: 2px;
-            font-size: 1rem;
+            font-size: 0.9rem;
             cursor: pointer;
             width: 100%;
             display: flex;
@@ -164,19 +146,18 @@
             align-items: center;
             box-shadow: 0 0 30px rgba(192, 160, 96, 0.3);
             transition: 0.3s;
+            margin-top: 20px;
         }
-        .btn-primary:active { transform: scale(0.98); opacity: 0.9; }
-        .btn-small { font-size: 0.6rem; opacity: 0.7; font-family: 'Cinzel', serif; margin-top: 2px; letter-spacing: 1px;}
+        .btn-small { font-size: 0.6rem; opacity: 0.8; font-family: 'Cinzel', serif; margin-top: 3px; letter-spacing: 1px; font-weight: 400;}
 
-        /* --- 隱藏的匯出專用卡片 (The Minting Press) --- */
-        /* 這是關鍵！我們在畫面外渲染一張完美的 1080x1920 卡片 */
+        /* --- 隱藏的匯出專用卡片 (1080x1920) --- */
         #exportCard {
             position: fixed;
             left: -9999px; /* 移出畫面 */
             top: 0;
-            width: 1080px;  /* IG Story 標準寬 */
-            height: 1920px; /* IG Story 標準高 */
-            background: #050505;
+            width: 1080px;
+            height: 1920px;
+            background: #000;
             z-index: -1;
             overflow: hidden;
             display: flex;
@@ -184,90 +165,137 @@
             justify-content: space-between;
         }
 
-        /* 匯出卡片的樣式 (極致高級感) */
-        .card-bg {
+        /* 絕對定位的背景圖 (由 JS 裁切後填入) */
+        #exportBg {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover;
-            filter: grayscale(100%) contrast(120%) brightness(0.8);
+            object-fit: cover; /* 這裡作為保險，主要靠 JS 裁切 */
         }
+
+        /* 漸層遮罩，保證文字清晰 */
         .card-overlay {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.8) 70%, #000 100%);
+            background: linear-gradient(to bottom, 
+                rgba(0,0,0,0.2) 0%, 
+                rgba(0,0,0,0) 40%, 
+                rgba(0,0,0,0.6) 65%, 
+                rgba(0,0,0,0.95) 90%,
+                #000 100%);
             z-index: 2;
         }
+
         .card-content {
             position: relative;
             z-index: 10;
             height: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            padding: 120px 100px; /* 寬裕的留白 */
+            justify-content: flex-end; /* 內容靠下 */
+            padding: 80px 80px;
             color: #fff;
         }
 
-        .card-header {
-            border-top: 2px solid #fff;
-            padding-top: 40px;
+        /* 卡片頂部 */
+        .card-top {
+            position: absolute;
+            top: 80px; left: 80px; right: 80px;
             display: flex;
             justify-content: space-between;
-            font-family: 'Cinzel', serif;
+            border-top: 2px solid rgba(255,255,255,0.8);
+            padding-top: 30px;
+            font-family: 'Montserrat', sans-serif;
             font-size: 24px;
-            letter-spacing: 5px;
+            letter-spacing: 4px;
+            font-weight: 600;
+            text-transform: uppercase;
         }
 
-        .card-result {
-            margin-bottom: 100px;
+        /* 核心結果展示 */
+        .card-main {
+            margin-bottom: 60px;
         }
+
         .card-en {
             font-family: 'Cinzel', serif;
-            font-size: 150px; /* 超大字體 */
-            line-height: 0.9;
-            margin-bottom: 20px;
+            font-size: 140px;
+            line-height: 0.85;
+            margin-bottom: 30px;
             font-weight: 500;
+            letter-spacing: -4px;
         }
+        
         .card-cn {
             font-family: 'Noto Sans TC', sans-serif;
-            font-size: 48px;
+            font-size: 56px;
             letter-spacing: 20px;
             color: var(--accent);
             font-weight: 700;
             margin-bottom: 60px;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
         
         .card-desc {
             font-family: 'Playfair Display', serif;
-            font-size: 36px;
+            font-size: 42px;
             font-style: italic;
-            line-height: 1.6;
-            color: #ddd;
-            margin-bottom: 60px;
-            border-left: 5px solid var(--accent);
+            line-height: 1.5;
+            color: #e0e0e0;
+            margin-bottom: 80px;
+            border-left: 6px solid var(--accent);
             padding-left: 40px;
+            max-width: 90%;
         }
 
-        .card-data-row {
-            display: flex;
-            justify-content: space-between;
+        /* 數據分析區 */
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            margin-bottom: 60px;
             border-top: 1px solid rgba(255,255,255,0.3);
             padding-top: 40px;
         }
-        .data-block { font-family: 'JetBrains Mono', monospace; font-size: 28px; color: #aaa; text-transform: uppercase; }
-        .data-val { color: #fff; font-weight: 700; margin-left: 10px; }
-        .card-footer {
+
+        .analysis-item h3 {
+            font-family: 'Montserrat', sans-serif;
             font-size: 24px;
-            text-align: center;
-            color: #555;
-            letter-spacing: 5px;
+            color: #888;
+            margin: 0 0 10px 0;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        
+        .analysis-item p {
+            font-family: 'Noto Sans TC', sans-serif;
+            font-size: 32px;
+            color: #fff;
+            margin: 0;
+            font-weight: 500;
+        }
+        
+        .analysis-val {
             font-family: 'Cinzel', serif;
+            color: var(--accent);
+            font-weight: 700;
+            margin-left: 10px;
+        }
+
+        /* 底部品牌水印 */
+        .card-footer {
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 40px;
+            font-family: 'Cinzel', serif;
+            letter-spacing: 12px;
+            font-size: 28px;
+            color: rgba(255,255,255,0.6);
         }
 
         /* 測驗模態框 */
         .quiz-modal {
             position: absolute; bottom: 0; left: 0; width: 100%;
-            background: rgba(10, 10, 10, 0.98);
+            background: rgba(15, 15, 15, 0.98);
             border-top: 1px solid var(--accent);
             padding: 40px 30px;
             z-index: 100;
@@ -276,10 +304,10 @@
             display: flex; flex-direction: column; align-items: center;
         }
         .quiz-modal.active { transform: translateY(0); }
-        .quiz-q { font-size: 1.2rem; margin-bottom: 30px; text-align: center; line-height: 1.5; font-weight: 300;}
+        .quiz-q { font-size: 1.1rem; margin-bottom: 30px; text-align: center; line-height: 1.5; font-weight: 300;}
         .quiz-opts { width: 100%; display: flex; gap: 10px; }
         .q-btn { 
-            flex: 1; padding: 20px; background: #222; color: #fff; border: 1px solid #444; 
+            flex: 1; padding: 20px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.2); 
             cursor: pointer; transition: 0.2s; font-size: 0.9rem;
         }
         .q-btn:active { background: var(--accent); color: #000; }
@@ -306,24 +334,20 @@
             <input type="file" id="fileInput" accept="image/*">
 
             <div class="result-panel" id="resultPanel">
-                <div style="flex-grow:1;"></div> <div class="archetype-title" id="uiEn">--</div>
-                <div class="archetype-sub" id="uiCn">--</div>
-
-                <div class="stats-simple">
-                    <span>VISUAL: <b id="uiVis">0%</b></span>
-                    <span>GAP: <b id="uiGap" style="color:var(--alert)">0%</b></span>
-                    <span>SOUL: <b id="uiSoul">0%</b></span>
+                <div style="flex-grow:1;"></div>
+                
+                <div class="preview-title" id="uiEn">--</div>
+                <div class="preview-sub" id="uiCn">--</div>
+                
+                <div style="font-size: 0.7rem; color: #ccc; margin-bottom: 20px; letter-spacing: 1px;">
+                    VISUAL REPORT READY
                 </div>
 
-                <div class="action-group">
+                <div class="action-group" style="width: 100%;">
                     <button class="btn-primary" onclick="generateAndSave()" id="saveBtn">
                         <span>分享結果</span>
                         <span class="btn-small">MINT COLLECTIBLE CARD</span>
                     </button>
-                    
-                    <div style="font-size: 0.6rem; color: #666; text-align: center; margin-top: 10px; cursor: pointer;" onclick="window.open('https://instagram.com/eden_d_photo','_blank')">
-                        VISUAL ARCHITECT: EDEN_D_PHOTO
-                    </div>
                 </div>
             </div>
         </div>
@@ -339,68 +363,46 @@
     </div>
 
     <div id="exportCard">
-        <img id="exportBg" class="card-bg">
-        <div class="card-overlay"></div>
+        <img id="exportBg" class="bg-preview" style="opacity: 1; filter: none;"> <div class="card-overlay"></div>
+        
         <div class="card-content">
-            <div class="card-header">
-                <span>SOCIAL MASK DECODER</span>
+            <div class="card-top">
+                <span>SOCIAL MASK</span>
                 <span>NO. <span id="cardId">0000</span></span>
             </div>
 
-            <div class="card-result">
+            <div class="card-main">
                 <div class="card-en" id="cardEn">THE EMPEROR</div>
                 <div class="card-cn" id="cardCn">絕對統治者</div>
                 <div class="card-desc" id="cardDesc">
                     你的外表與靈魂高度統一。不需要言語，你的存在本身就是一種結構性的聲明。
                 </div>
 
-                <div class="card-data-row">
-                    <div>
-                        <div class="data-block">VISUAL WARMTH</div>
-                        <div style="font-size:16px; color:#666; margin-top:5px;">(外在親和)</div>
+                <div class="analysis-grid">
+                    <div class="analysis-item">
+                        <h3>Visual Signal</h3>
+                        <p>外在親和 <span class="analysis-val" id="valVis">0%</span></p>
                     </div>
-                    <div class="data-block"><span class="data-val" id="cardVal1">88%</span></div>
-                </div>
-                <div class="card-data-row" style="border-top:none;">
-                    <div>
-                        <div class="data-block">INTERNAL DRIVE</div>
-                        <div style="font-size:16px; color:#666; margin-top:5px;">(內在野心)</div>
+                    <div class="analysis-item">
+                        <h3>Internal Core</h3>
+                        <p>內在野心 <span class="analysis-val" id="valSoul">0%</span></p>
                     </div>
-                    <div class="data-block"><span class="data-val" id="cardVal2" style="color:var(--accent)">92%</span></div>
-                </div>
-                <div class="card-data-row" style="border-top:none;">
-                    <div>
-                        <div class="data-block" style="color:var(--alert)">MISUNDERSTANDING</div>
-                        <div style="font-size:16px; color:#666; margin-top:5px;">(誤解指數)</div>
+                    <div class="analysis-item" style="grid-column: span 2; border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 20px;">
+                        <h3>Misunderstanding Index (誤解指數)</h3>
+                        <p id="gapText" style="font-size: 28px; line-height: 1.4;">
+                            </p>
                     </div>
-                    <div class="data-block"><span class="data-val" id="cardVal3" style="color:var(--alert)">15%</span></div>
                 </div>
             </div>
 
             <div class="card-footer">
-                VISUAL ARCHITECTURE BY EDEN
+                EDEN_D_PHOTO
             </div>
         </div>
     </div>
 
     <script>
-        // 16型人格矩陣 (4x4 Matrix)
-        // External (Visual): Warmth Score -> Low/High, Power Score -> Low/High
-        // Internal (Soul): Drive Score -> Low/High, Empathy Score -> Low/High (Simplified to 1 axis for this demo to keep it stable)
-        
-        // 簡化邏輯：
-        // Visual Type (4): 
-        // 1. Sun (High Warm, High Power) -> Charisma
-        // 2. Flower (High Warm, Low Power) -> Affinity
-        // 3. Stone (Low Warm, High Power) -> Authority
-        // 4. Ice (Low Warm, Low Power) -> Mystery
-        
-        // Soul Type (4) based on Quiz:
-        // A. Ruler (掌控)
-        // B. Creator (創造)
-        // C. Sage (邏輯)
-        // D. Lover (連結)
-
+        // 16型人格與文案資料庫
         const archetypeMatrix = {
             "Charisma-Ruler": { en: "THE KING", cn: "天生王者", desc: "你擁有令人無法忽視的光芒與掌控力。你的親和力是用來統治的手段。" },
             "Charisma-Creator": { en: "THE MAVERICK", cn: "叛逆領袖", desc: "你不遵循規則，你創造規則。你的魅力來自於那種危險的不可預測性。" },
@@ -423,7 +425,6 @@
             "Mystery-Lover": { en: "THE GHOST", cn: "幽靈情人", desc: "你若即若離，讓人抓不住。你的疏離感反而是一種致命的吸引力。" }
         };
 
-        // 測驗題目 (5題)
         const quizData = [
             { q: "在團隊發生爭執時，你的第一直覺是？", a: "維護關係與氣氛 (Feel)", b: "釐清誰對誰錯 (Logic)", type: "FL" },
             { q: "你更希望別人如何形容你？", a: "強大、令人敬畏 (Power)", b: "有趣、令人喜愛 (Love)", type: "PL" },
@@ -436,7 +437,8 @@
             visWarmth: 0,
             visPower: 0,
             soulScore: { Ruler: 0, Creator: 0, Sage: 0, Lover: 0 },
-            qIdx: 0
+            qIdx: 0,
+            originalImageFile: null
         };
 
         // 初始化 AI
@@ -446,113 +448,133 @@
             faceapi.nets.faceExpressionNet.loadFromUri('https://justadudewhohacks.github.io/face-api.js/models')
         ]).then(() => console.log("AI Ready"));
 
-        // DOM Elements
         const fileInput = document.getElementById('fileInput');
         const previewImg = document.getElementById('previewImg');
         const uploadArea = document.getElementById('uploadArea');
         const quizModal = document.getElementById('quizModal');
-        const exportBg = document.getElementById('exportBg');
 
-        // 1. 處理圖片上傳
+        // 1. 圖片處理 (解決變形的關鍵)
         fileInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
+            state.originalImageFile = file;
 
             const reader = new FileReader();
             reader.onload = (evt) => {
-                previewImg.src = evt.target.result;
-                exportBg.src = evt.target.result; // 同步設定給匯出卡片
+                previewImg.src = evt.target.result; // 手機預覽用
                 previewImg.style.display = 'block';
                 uploadArea.style.display = 'none';
+                
+                // 馬上進行 9:16 的裁切處理，準備給匯出卡片用
+                cropImageTo916(evt.target.result).then(croppedDataUrl => {
+                    document.getElementById('exportBg').src = croppedDataUrl;
+                });
 
-                // 開始 AI 分析
                 analyzeFace();
             };
             reader.readAsDataURL(file);
         });
 
+        // --- 關鍵函數：將圖片強制裁切為 9:16 且置中，防止變形 ---
+        function cropImageTo916(imageSrc) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // 設定目標尺寸 (IG Story)
+                    const targetW = 1080;
+                    const targetH = 1920;
+                    canvas.width = targetW;
+                    canvas.height = targetH;
+                    
+                    // 計算裁切比例 (Cover 模式)
+                    const imgRatio = img.width / img.height;
+                    const targetRatio = targetW / targetH;
+                    
+                    let drawW, drawH, startX, startY;
+                    
+                    if (imgRatio > targetRatio) {
+                        // 圖片比較寬 -> 以高度為準，裁切左右
+                        drawH = targetH;
+                        drawW = img.width * (targetH / img.height);
+                        startX = (targetW - drawW) / 2; // 置中
+                        startY = 0;
+                    } else {
+                        // 圖片比較長 -> 以寬度為準，裁切上下
+                        drawW = targetW;
+                        drawH = img.height * (targetW / img.width);
+                        startX = 0;
+                        startY = (targetH - drawH) / 2; // 置中
+                    }
+                    
+                    // 繪製到 Canvas
+                    ctx.drawImage(img, startX, startY, drawW, drawH);
+                    resolve(canvas.toDataURL('image/jpeg', 0.95)); // 回傳新圖片 Base64
+                };
+                img.src = imageSrc;
+            });
+        }
+
         // 2. AI 分析
         async function analyzeFace() {
-            // 簡單模擬等待
             setTimeout(async () => {
                 const detection = await faceapi.detectSingleFace(previewImg, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceExpressions();
                 
                 if (detection) {
                     const exp = detection.expressions;
-                    // 運算邏輯
                     state.visWarmth = Math.round((exp.happy * 80) + (exp.surprised * 20)); 
                     state.visPower = Math.round((exp.neutral * 60) + (exp.angry * 40) - (exp.happy * 20));
-                    
-                    // 正規化 0-100
                     state.visWarmth = Math.min(100, Math.max(10, state.visWarmth));
                     state.visPower = Math.min(100, Math.max(10, state.visPower));
                 } else {
-                    // 沒偵測到，給平均值
                     state.visWarmth = 60;
                     state.visPower = 40;
                 }
-                
-                // 開啟測驗
                 startQuiz();
             }, 1000);
         }
 
-        // 3. 測驗邏輯
-        function startQuiz() {
-            quizModal.classList.add('active');
-            renderQuestion();
-        }
-
+        // 3. 測驗
+        function startQuiz() { quizModal.classList.add('active'); renderQuestion(); }
         function renderQuestion() {
-            if (state.qIdx >= quizData.length) {
-                finishQuiz();
-                return;
-            }
+            if (state.qIdx >= quizData.length) { finishQuiz(); return; }
             const q = quizData[state.qIdx];
             document.getElementById('qNum').innerText = state.qIdx + 1;
             document.getElementById('qText').innerText = q.q;
             document.getElementById('btnA').innerText = q.a;
             document.getElementById('btnB').innerText = q.b;
         }
-
-        function handleAnswer(choice) { // 0 for A, 1 for B
+        function handleAnswer(choice) {
             const type = quizData[state.qIdx].type;
-            
-            // 簡單積分邏輯，將回答映射到 4 個靈魂維度
             if (type === 'FL') choice === 0 ? state.soulScore.Lover++ : state.soulScore.Sage++;
             if (type === 'PL') choice === 0 ? state.soulScore.Ruler++ : state.soulScore.Lover++;
             if (type === 'ID') choice === 0 ? state.soulScore.Creator++ : state.soulScore.Sage++;
             if (type === 'CF') choice === 0 ? state.soulScore.Ruler++ : state.soulScore.Creator++;
             if (type === 'SO') choice === 0 ? state.soulScore.Ruler++ : state.soulScore.Lover++;
-
             state.qIdx++;
             renderQuestion();
         }
-
         function finishQuiz() {
             quizModal.classList.remove('active');
             calculateArchetype();
         }
 
-        // 4. 計算結果 (Matrix Mapping)
+        // 4. 計算與渲染
         function calculateArchetype() {
-            // A. 判定 Visual Type
             let visType = "";
             if (state.visWarmth > 50 && state.visPower > 50) visType = "Charisma";
             else if (state.visWarmth > 50 && state.visPower <= 50) visType = "Affinity";
             else if (state.visWarmth <= 50 && state.visPower > 50) visType = "Authority";
             else visType = "Mystery";
 
-            // B. 判定 Soul Type (取最高分者)
             const scores = state.soulScore;
             let soulType = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
 
-            // C. 查表
             const key = `${visType}-${soulType}`;
-            const result = archetypeMatrix[key] || archetypeMatrix["Mystery-Sage"]; // Fallback
+            const result = archetypeMatrix[key] || archetypeMatrix["Mystery-Sage"];
 
-            // D. 計算誤解指數 (Gap)
-            // 假設 Soul Power: Ruler=100, Creator=80, Sage=60, Lover=40
             let internalPower = 0;
             if(soulType === 'Ruler') internalPower = 90;
             if(soulType === 'Creator') internalPower = 70;
@@ -560,56 +582,50 @@
             if(soulType === 'Lover') internalPower = 30;
 
             let gap = Math.abs(state.visPower - internalPower);
-            
-            // 更新 UI
-            updateUI(result, gap);
-            // 更新 隱藏卡片
-            updateExportCard(result, gap, internalPower);
-        }
 
-        function updateUI(res, gap) {
+            // 產生誤解指數文案
+            let gapText = "";
+            if(gap > 40) gapText = `<span style="color:#A03030">HIGH (${gap}%)</span> - 你的外在信號正在背叛你的真實意圖。`;
+            else if (gap > 20) gapText = `MODERATE (${gap}%) - 你的保護色運作良好，但偶爾會阻礙連結。`;
+            else gapText = `<span style="color:#D4AF37">LOW (${gap}%)</span> - 表裡如一。你的靈魂與外表頻率高度同步。`;
+
+            // 更新手機預覽
             document.getElementById('resultPanel').style.display = 'flex';
-            document.getElementById('uiEn').innerText = res.en;
-            document.getElementById('uiCn').innerText = res.cn;
-            document.getElementById('uiVis').innerText = state.visWarmth + "%";
-            document.getElementById('uiGap').innerText = gap + "%";
-            document.getElementById('uiSoul').innerText = (100-gap) + "%"; // 隨意填個數據
-        }
+            document.getElementById('uiEn').innerText = result.en;
+            document.getElementById('uiCn').innerText = result.cn;
 
-        function updateExportCard(res, gap, internalPower) {
-            document.getElementById('cardEn').innerText = res.en;
-            document.getElementById('cardCn').innerText = res.cn;
-            document.getElementById('cardDesc').innerText = res.desc;
+            // 更新隱藏卡片
+            document.getElementById('cardEn').innerText = result.en;
+            document.getElementById('cardCn').innerText = result.cn;
+            document.getElementById('cardDesc').innerText = result.desc;
             document.getElementById('cardId').innerText = Math.floor(Math.random() * 9000 + 1000);
             
-            document.getElementById('cardVal1').innerText = state.visWarmth + "%";
-            document.getElementById('cardVal2').innerText = internalPower + "%";
-            document.getElementById('cardVal3').innerText = gap + "%";
+            document.getElementById('valVis').innerText = state.visWarmth + "%";
+            document.getElementById('valSoul').innerText = internalPower + "%";
+            document.getElementById('gapText').innerHTML = gapText;
         }
 
-        // 5. 核心：產生並儲存圖片 (The Minting Process)
+        // 5. 匯出卡片 (Minting)
         function generateAndSave() {
             const btn = document.getElementById('saveBtn');
             const originalText = btn.innerHTML;
             btn.innerHTML = "MINTING CARD...";
             btn.style.background = "#fff";
 
-            // 目標：截取那個看不見的 #exportCard
             const target = document.getElementById('exportCard');
 
             html2canvas(target, {
                 useCORS: true,
-                scale: 1, // 因為卡片本身已經是 1080x1920 高清了，不用再放大，否則會炸記憶體
+                scale: 1, // 已經是高清尺寸了
                 width: 1080,
                 height: 1920,
-                backgroundColor: "#050505"
+                backgroundColor: "#000"
             }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = 'EDEN_COLLECTIBLE_CARD.png';
                 link.href = canvas.toDataURL('image/png');
                 link.click();
 
-                // 復原按鈕
                 setTimeout(() => {
                     btn.innerHTML = "COLLECTED!";
                     btn.style.background = "var(--accent)";
@@ -619,7 +635,6 @@
                 }, 500);
             });
         }
-
     </script>
 </body>
 </html>
