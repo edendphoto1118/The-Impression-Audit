@@ -6,16 +6,17 @@
     <title>EDEN | Social Mask Decoder</title>
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Inter:wght@300;400;600&family=Noto+Sans+TC:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;1,400&family=Montserrat:wght@400;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Inter:wght@300;400;600&family=Noto+Sans+TC:wght@300;500;700&family=Playfair+Display:ital,wght@0,400;1,400&family=Montserrat:wght@300;500&family=JetBrains+Mono:wght@300&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --bg-deep: #050505;
             --text-main: #E0E0E0;
-            /* --- 配色更改：鉑金銀 (Platinum Silver) --- */
-            --accent: #E3E9F0; /* 冷冽明亮的銀色 */
-            --accent-dim: rgba(227, 233, 240, 0.15); /* 銀色半透明 */
-            --alert: #FF4D4D; /* 調整警告色，使其在銀色下更鮮明 */
+            /* 鉑金銀配色系統 */
+            --accent: #E3E9F0; 
+            --accent-dim: rgba(227, 233, 240, 0.3);
+            --line-light: rgba(255, 255, 255, 0.15);
+            --alert: #FF4D4D;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -34,7 +35,7 @@
             align-items: center;
         }
 
-        /* --- 主互動介面 --- */
+        /* --- 主容器 --- */
         .app-container {
             position: relative;
             width: 100%;
@@ -50,7 +51,7 @@
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             object-fit: cover;
-            filter: brightness(0.6) grayscale(30%); /* 稍微增加一點灰階，配合銀色主題 */
+            filter: brightness(0.6) grayscale(20%); /* 低調的高級感 */
             z-index: 1;
         }
 
@@ -71,15 +72,16 @@
             font-family: 'Montserrat', sans-serif;
             font-size: 0.6rem;
             letter-spacing: 4px;
-            color: rgba(255,255,255,0.7);
+            color: rgba(255,255,255,0.6);
             text-align: center;
             margin-bottom: 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
             padding-bottom: 15px;
             text-transform: uppercase;
+            /* 移除底線，改用更純粹的留白 */
+            opacity: 0.8;
         }
 
-        /* 上傳按鈕 */
+        /* 上傳按鈕 (極細線圈) */
         .upload-area {
             flex-grow: 1;
             display: flex;
@@ -89,8 +91,8 @@
         }
 
         .upload-circle {
-            width: 140px; height: 140px;
-            border: 1px solid rgba(255,255,255,0.3);
+            width: 130px; height: 130px;
+            border: 0.5px solid rgba(255,255,255,0.4); /* 極細線 */
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -98,177 +100,188 @@
             flex-direction: column;
             cursor: pointer;
             transition: 0.3s;
-            background: rgba(0,0,0,0.3);
-            backdrop-filter: blur(10px);
+            background: rgba(0,0,0,0.2);
+            backdrop-filter: blur(5px);
         }
-        .upload-circle:hover { border-color: var(--accent); background: var(--accent-dim); }
-        .upload-text { font-family: 'Cinzel', serif; margin-top: 8px; font-size: 0.7rem; letter-spacing: 2px; }
+        /* 觸碰時才變亮 */
+        .upload-circle:active { border-color: var(--accent); background: rgba(255,255,255,0.05); }
+        .upload-text { font-family: 'Cinzel', serif; margin-top: 8px; font-size: 0.65rem; letter-spacing: 2px; color: #ccc; }
 
-        /* 手機預覽介面 (Result Panel) */
+        /* 手機預覽介面 (時尚重構版) */
         .result-panel {
             display: none;
             flex-direction: column;
             align-items: center;
             text-align: center;
             padding-bottom: 20px;
-            animation: fadeIn 1s ease;
+            animation: fadeIn 1.2s cubic-bezier(0.22, 1, 0.36, 1);
             width: 100%;
         }
 
         .preview-title {
             font-family: 'Cinzel', serif;
-            font-size: 2.2rem;
-            line-height: 1;
+            font-size: 2.8rem;
+            line-height: 0.9;
             color: #fff;
             margin-bottom: 5px;
-            text-shadow: 0 5px 20px rgba(0,0,0,0.8);
+            letter-spacing: -1px;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
         .preview-sub {
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: var(--accent);
-            letter-spacing: 5px;
-            font-weight: 700;
-            margin-bottom: 15px;
+            letter-spacing: 6px;
+            font-weight: 500;
+            margin-bottom: 20px;
             text-shadow: 0 5px 20px rgba(0,0,0,0.8);
+            opacity: 0.9;
         }
 
         .preview-desc {
             font-family: 'Playfair Display', serif;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             font-style: italic;
-            color: #ddd;
-            margin-bottom: 25px;
+            color: #ccc;
+            margin-bottom: 30px;
             padding: 0 10px;
-            line-height: 1.4;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+            line-height: 1.5;
+            font-weight: 400;
         }
 
-        /* 數據儀表板 */
-        .mobile-stats {
+        /* --- 數據呈現 (去色塊化，改用極簡線條) --- */
+        .stats-minimal {
             display: flex;
             width: 100%;
-            justify-content: space-between;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.15);
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-        }
-        
-        .m-stat-item {
-            display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            flex: 1;
-            border-right: 1px solid rgba(255,255,255,0.15);
+            margin-bottom: 30px;
+            padding: 10px 0;
+            border-top: 0.5px solid var(--line-light);
+            border-bottom: 0.5px solid var(--line-light);
         }
-        .m-stat-item:last-child { border-right: none; }
         
-        .m-label { font-size: 0.6rem; color: #aaa; letter-spacing: 1px; margin-bottom: 4px; font-family: 'Montserrat', sans-serif;}
-        .m-val { font-family: 'JetBrains Mono', monospace; color: #fff; font-size: 1rem; font-weight: 700; }
-
-        /* 契合人格區塊 */
-        .match-section {
-            width: 100%;
+        .stat-item {
+            padding: 0 15px;
             text-align: center;
-            margin-bottom: 25px;
-            background: rgba(0,0,0,0.3);
-            padding: 15px;
-            border-radius: 4px;
-            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .stat-label { 
+            font-family: 'Montserrat', sans-serif; 
+            font-size: 0.5rem; 
+            letter-spacing: 2px; 
+            color: #888; 
+            display: block; 
+            margin-bottom: 4px;
+        }
+        
+        .stat-val { 
+            font-family: 'Cinzel', serif; 
+            font-size: 1.1rem; 
+            color: #fff; 
+        }
+
+        /* 垂直分隔線 */
+        .stat-divider {
+            width: 0.5px;
+            height: 25px;
+            background: var(--line-light);
+            transform: rotate(15deg); /* 稍微傾斜，增加設計感 */
+        }
+
+        /* --- 契合區塊 (極簡文字版) --- */
+        .match-minimal {
+            margin-bottom: 35px;
+            text-align: center;
         }
         .match-label {
             font-family: 'Montserrat', sans-serif;
-            font-size: 0.6rem;
-            letter-spacing: 2px;
-            color: #888;
-            margin-bottom: 10px;
+            font-size: 0.55rem;
+            letter-spacing: 3px;
+            color: #666;
+            margin-bottom: 12px;
             text-transform: uppercase;
         }
-        .match-tags {
+        .match-names {
             display: flex;
             justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .match-tag {
+            gap: 20px;
             font-family: 'Cinzel', serif;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: var(--accent);
-            border: 1px solid var(--accent-dim);
-            padding: 8px 12px;
             letter-spacing: 1px;
-            background: rgba(0,0,0,0.3);
         }
+        /* 兩個名字中間的點 */
+        .match-dot { color: #444; font-size: 0.6rem; display: flex; align-items: center; }
 
-        /* 按鈕樣式 (Ghost Button) */
+        /* --- 按鈕樣式 (Luxury Ghost Button) --- */
         .btn-primary {
             background: transparent; 
             color: var(--accent);
-            border: 1px solid var(--accent); 
-            padding: 15px;
+            border: 0.5px solid var(--accent); /* 極細銀框 */
+            padding: 16px;
             cursor: pointer;
             width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
-            transition: 0.3s;
+            transition: background 0.3s;
             position: relative; 
-            overflow: hidden;
+            overflow: hidden; /* 為了光澤特效 */
         }
         
         .btn-main-text {
             font-family: 'Noto Sans TC', sans-serif;
-            font-weight: 700;
+            font-weight: 500;
             letter-spacing: 4px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             margin-bottom: 4px;
+            color: #fff;
         }
         .btn-sub-text {
             font-family: 'Cinzel', serif;
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             letter-spacing: 2px;
+            color: var(--accent);
             opacity: 0.8;
         }
 
-        .btn-primary:active { transform: scale(0.98); background: var(--accent-dim); }
-
-        /* --- 🌟 LUXURY SHINE EFFECT (銀色流光特效) --- */
+        /* --- 🌟 修正後的金屬流光特效 (只在觸碰時觸發) --- */
         @keyframes shine-sweep {
             0% { left: -100%; opacity: 0; }
-            5% { opacity: 1; }
+            20% { opacity: 1; }
             100% { left: 200%; opacity: 0; }
         }
 
         .luxury-shine { position: relative; overflow: hidden; z-index: 1; }
-        .luxury-shine > * { position: relative; z-index: 2; } 
-
-        /* 更新為銀白金屬光澤漸層 */
+        
         .luxury-shine::after {
             content: '';
             position: absolute;
             top: 0; left: -100%;
             width: 150%; height: 100%;
+            /* 白金光澤：冷白 -> 銀 -> 冷白 */
             background: linear-gradient(
                 120deg,
                 transparent 20%,
-                rgba(255, 255, 255, 0.1) 30%, /* 白光邊緣 */
-                rgba(227, 233, 240, 0.7) 50%, /* 銀色核心高光 */
-                rgba(255, 255, 255, 0.1) 70%, /* 白光邊緣 */
+                rgba(255, 255, 255, 0.1) 30%,
+                rgba(255, 255, 255, 0.5) 50%, 
+                rgba(255, 255, 255, 0.1) 70%,
                 transparent 80%
             );
             transform: skewX(-25deg);
             pointer-events: none;
-            z-index: 1;
+            z-index: 0;
+            opacity: 0; /* 預設隱藏 */
         }
 
+        /* 關鍵：只有 hover 或 active 時才播放動畫 */
         .luxury-shine:hover::after,
         .luxury-shine:active::after {
-            animation: shine-sweep 0.75s cubic-bezier(0.4, 0.0, 0.2, 1);
+            opacity: 1;
+            animation: shine-sweep 0.6s cubic-bezier(0.2, 0.0, 0.2, 1) forwards;
         }
 
-        /* --- 隱藏的匯出專用卡片 (1080x1920) --- */
+        /* --- 匯出專用隱藏卡片 (1080x1920) --- */
         #exportCard {
             position: fixed;
             left: -9999px;
@@ -405,7 +418,7 @@
         /* 測驗模態框 */
         .quiz-modal {
             position: absolute; bottom: 0; left: 0; width: 100%;
-            background: rgba(15, 15, 15, 0.98);
+            background: rgba(10, 10, 10, 0.98);
             border-top: 1px solid var(--accent);
             padding: 40px 30px;
             z-index: 100;
@@ -414,11 +427,12 @@
             display: flex; flex-direction: column; align-items: center;
         }
         .quiz-modal.active { transform: translateY(0); }
-        .quiz-q { font-size: 1.1rem; margin-bottom: 30px; text-align: center; line-height: 1.5; font-weight: 300;}
-        .quiz-opts { width: 100%; display: flex; gap: 10px; }
+        .quiz-q { font-size: 1.1rem; margin-bottom: 30px; text-align: center; line-height: 1.5; font-weight: 300; font-family: 'Noto Sans TC'; letter-spacing: 1px;}
+        .quiz-opts { width: 100%; display: flex; gap: 15px; }
         .q-btn { 
-            flex: 1; padding: 20px; background: rgba(255,255,255,0.05); color: #fff; border: 1px solid rgba(255,255,255,0.2); 
-            cursor: pointer; transition: 0.2s; font-size: 0.9rem;
+            flex: 1; padding: 20px; background: rgba(255,255,255,0.03); color: #fff; 
+            border: 0.5px solid rgba(255,255,255,0.2); 
+            cursor: pointer; transition: 0.2s; font-size: 0.9rem; font-family: 'Montserrat'; letter-spacing: 1px;
         }
         .q-btn:active { background: var(--accent); color: #000; }
 
@@ -437,40 +451,45 @@
 
             <div class="upload-area" id="uploadArea">
                 <div class="upload-circle luxury-shine" onclick="document.getElementById('fileInput').click()">
-                    <div style="font-size: 2rem;">+</div>
+                    <div style="font-size: 2rem; color:#fff; font-weight:100;">+</div>
                     <div class="upload-text">UPLOAD</div>
                 </div>
             </div>
             <input type="file" id="fileInput" accept="image/*">
 
             <div class="result-panel" id="resultPanel">
-                <div style="flex-grow:1;"></div> <div class="preview-title" id="uiEn">--</div>
+                <div style="flex-grow:1;"></div>
+                
+                <div class="preview-title" id="uiEn">--</div>
                 <div class="preview-sub" id="uiCn">--</div>
 
                 <div class="preview-desc" id="uiDesc">
                     --
                 </div>
                 
-                <div class="mobile-stats">
-                    <div class="m-stat-item">
-                        <span class="m-label">VISUAL</span>
-                        <span class="m-val" id="uiVis">0%</span>
+                <div class="stats-minimal">
+                    <div class="stat-item">
+                        <span class="stat-label">VISUAL</span>
+                        <span class="stat-val" id="uiVis">0%</span>
                     </div>
-                    <div class="m-stat-item">
-                        <span class="m-label">SOUL</span>
-                        <span class="m-val" id="uiSoul">0%</span>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-label">SOUL</span>
+                        <span class="stat-val" id="uiSoul">0%</span>
                     </div>
-                    <div class="m-stat-item">
-                        <span class="m-label">GAP</span>
-                        <span class="m-val" id="uiGap" style="color:var(--accent)">0%</span>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <span class="stat-label">GAP</span>
+                        <span class="stat-val" id="uiGap" style="color:var(--accent)">0%</span>
                     </div>
                 </div>
 
-                <div class="match-section">
-                    <div class="match-label">HIGHLY COMPATIBLE WITH (契合共鳴)</div>
-                    <div class="match-tags">
-                        <span class="match-tag" id="uiMatch1">--</span>
-                        <span class="match-tag" id="uiMatch2">--</span>
+                <div class="match-minimal">
+                    <div class="match-label">HIGHLY COMPATIBLE WITH</div>
+                    <div class="match-names">
+                        <span id="uiMatch1">--</span>
+                        <span class="match-dot">●</span>
+                        <span id="uiMatch2">--</span>
                     </div>
                 </div>
 
@@ -480,15 +499,15 @@
                         <span class="btn-sub-text">EXTRACT VISUAL REPORT</span>
                     </button>
                     
-                    <div style="font-size: 0.55rem; color: #888; text-align: center; margin-top: 15px; cursor: pointer; letter-spacing: 1px;" onclick="window.open('https://instagram.com/eden_d_photo','_blank')">
-                        VISUAL ARCHITECT: EDEN_D_PHOTO
+                    <div style="font-size: 0.5rem; color: #666; text-align: center; margin-top: 20px; cursor: pointer; letter-spacing: 2px; text-transform: uppercase;" onclick="window.open('https://instagram.com/eden_d_photo','_blank')">
+                        Visual Architect: EDEN_D_PHOTO
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="quiz-modal" id="quizModal">
-            <div style="font-size: 0.7rem; color: var(--accent); margin-bottom: 20px; letter-spacing: 2px;">CALIBRATION ( <span id="qNum">1</span> / 5 )</div>
+            <div style="font-size: 0.6rem; color: var(--accent); margin-bottom: 30px; letter-spacing: 4px; font-family:'Cinzel';">CALIBRATION ( <span id="qNum">1</span> / 5 )</div>
             <div class="quiz-q" id="qText">...</div>
             <div class="quiz-opts">
                 <button class="q-btn luxury-shine" onclick="handleAnswer(0)" id="btnA">A</button>
@@ -696,13 +715,13 @@
 
             let gap = Math.abs(state.visPower - internalPower);
 
-            // 更新手機預覽介面 (Mobile UI)
+            // 更新手機預覽
             document.getElementById('resultPanel').style.display = 'flex';
             document.getElementById('uiEn').innerText = result.en;
             document.getElementById('uiCn').innerText = result.cn;
             document.getElementById('uiDesc').innerText = result.desc;
 
-            // 更新手機儀表板
+            // 更新數據
             document.getElementById('uiVis').innerText = state.visWarmth + "%";
             document.getElementById('uiSoul').innerText = internalPower + "%";
             document.getElementById('uiGap').innerText = gap + "%";
@@ -712,7 +731,7 @@
             else if(gap < 20) gapEl.style.color = "var(--accent)";
             else gapEl.style.color = "#fff";
 
-            // 更新契合人格
+            // 更新契合
             if (result.matches && result.matches.length >= 2) {
                 document.getElementById('uiMatch1').innerText = result.matches[0];
                 document.getElementById('uiMatch2').innerText = result.matches[1];
@@ -722,7 +741,7 @@
             let gapText = "";
             if(gap > 40) gapText = `<span style="color:#A03030">HIGH (${gap}%)</span> - 你的外在信號正在背叛你的真實意圖。`;
             else if (gap > 20) gapText = `MODERATE (${gap}%) - 你的保護色運作良好，但偶爾會阻礙連結。`;
-            else gapText = `<span style="color:#D4AF37">LOW (${gap}%)</span> - 表裡如一。你的靈魂與外表頻率高度同步。`;
+            else gapText = `<span style="color:#E3E9F0">LOW (${gap}%)</span> - 表裡如一。你的靈魂與外表頻率高度同步。`;
 
             document.getElementById('cardEn').innerText = result.en;
             document.getElementById('cardCn').innerText = result.cn;
@@ -740,6 +759,8 @@
             const originalText = mainText.innerText;
             mainText.innerText = "MINTING...";
             btn.style.background = "#fff";
+            btn.querySelector('.btn-sub-text').style.color = "#000";
+            btn.querySelector('.btn-main-text').style.color = "#000";
 
             const target = document.getElementById('exportCard');
 
@@ -761,6 +782,8 @@
                     setTimeout(() => {
                         mainText.innerText = originalText;
                         btn.style.background = "transparent";
+                        btn.querySelector('.btn-sub-text').style.color = "var(--accent)";
+                        btn.querySelector('.btn-main-text').style.color = "#fff";
                     }, 3000);
                 }, 500);
             });
