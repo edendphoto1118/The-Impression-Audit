@@ -51,11 +51,76 @@
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             object-fit: cover;
-            filter: brightness(0.6) grayscale(20%); /* 低調的高級感 */
+            filter: brightness(0.6) grayscale(20%);
             z-index: 1;
         }
 
-        .ui-layer {
+        /* --- 登入層 (Identity Layer) --- */
+        #identityLayer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 20;
+            background: #050505;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .id-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.8rem;
+            color: #fff;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+        .id-sub {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.7rem;
+            color: var(--accent);
+            margin-bottom: 50px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            text-align: center;
+            opacity: 0.8;
+        }
+
+        .input-group {
+            width: 100%;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .input-field {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(255,255,255,0.3);
+            padding: 15px 5px;
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            border-radius: 0;
+            transition: 0.3s;
+        }
+        .input-field:focus {
+            outline: none;
+            border-bottom-color: var(--accent);
+        }
+        .input-field::placeholder {
+            color: #555;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        /* 隱藏的 UI 層 (主介面) */
+        #mainUiLayer {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1s ease;
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: 10;
@@ -66,8 +131,9 @@
             overflow-y: auto;
             scrollbar-width: none;
         }
-        .ui-layer::-webkit-scrollbar { display: none; }
+        #mainUiLayer.active { opacity: 1; pointer-events: auto; }
 
+        /* 通用介面樣式 */
         .brand-header {
             font-family: 'Montserrat', sans-serif;
             font-size: 0.6rem;
@@ -77,11 +143,10 @@
             margin-bottom: 20px;
             padding-bottom: 15px;
             text-transform: uppercase;
-            /* 移除底線，改用更純粹的留白 */
             opacity: 0.8;
         }
 
-        /* 上傳按鈕 (極細線圈) */
+        /* 上傳按鈕 */
         .upload-area {
             flex-grow: 1;
             display: flex;
@@ -92,7 +157,7 @@
 
         .upload-circle {
             width: 130px; height: 130px;
-            border: 0.5px solid rgba(255,255,255,0.4); /* 極細線 */
+            border: 0.5px solid rgba(255,255,255,0.4);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -103,11 +168,10 @@
             background: rgba(0,0,0,0.2);
             backdrop-filter: blur(5px);
         }
-        /* 觸碰時才變亮 */
         .upload-circle:active { border-color: var(--accent); background: rgba(255,255,255,0.05); }
         .upload-text { font-family: 'Cinzel', serif; margin-top: 8px; font-size: 0.65rem; letter-spacing: 2px; color: #ccc; }
 
-        /* 手機預覽介面 (時尚重構版) */
+        /* 手機預覽介面 */
         .result-panel {
             display: none;
             flex-direction: column;
@@ -148,7 +212,7 @@
             font-weight: 400;
         }
 
-        /* --- 數據呈現 (去色塊化，改用極簡線條) --- */
+        /* 數據呈現 */
         .stats-minimal {
             display: flex;
             width: 100%;
@@ -160,64 +224,22 @@
             border-bottom: 0.5px solid var(--line-light);
         }
         
-        .stat-item {
-            padding: 0 15px;
-            text-align: center;
-        }
-        
-        .stat-label { 
-            font-family: 'Montserrat', sans-serif; 
-            font-size: 0.5rem; 
-            letter-spacing: 2px; 
-            color: #888; 
-            display: block; 
-            margin-bottom: 4px;
-        }
-        
-        .stat-val { 
-            font-family: 'Cinzel', serif; 
-            font-size: 1.1rem; 
-            color: #fff; 
-        }
+        .stat-item { padding: 0 15px; text-align: center; }
+        .stat-label { font-family: 'Montserrat', sans-serif; font-size: 0.5rem; letter-spacing: 2px; color: #888; display: block; margin-bottom: 4px; }
+        .stat-val { font-family: 'Cinzel', serif; font-size: 1.1rem; color: #fff; }
+        .stat-divider { width: 0.5px; height: 25px; background: var(--line-light); transform: rotate(15deg); }
 
-        /* 垂直分隔線 */
-        .stat-divider {
-            width: 0.5px;
-            height: 25px;
-            background: var(--line-light);
-            transform: rotate(15deg); /* 稍微傾斜，增加設計感 */
-        }
-
-        /* --- 契合區塊 (極簡文字版) --- */
-        .match-minimal {
-            margin-bottom: 35px;
-            text-align: center;
-        }
-        .match-label {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.55rem;
-            letter-spacing: 3px;
-            color: #666;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-        }
-        .match-names {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            font-family: 'Cinzel', serif;
-            font-size: 0.8rem;
-            color: var(--accent);
-            letter-spacing: 1px;
-        }
-        /* 兩個名字中間的點 */
+        /* 契合區塊 */
+        .match-minimal { margin-bottom: 35px; text-align: center; }
+        .match-label { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; letter-spacing: 3px; color: #666; margin-bottom: 12px; text-transform: uppercase; }
+        .match-names { display: flex; justify-content: center; gap: 20px; font-family: 'Cinzel', serif; font-size: 0.8rem; color: var(--accent); letter-spacing: 1px; }
         .match-dot { color: #444; font-size: 0.6rem; display: flex; align-items: center; }
 
-        /* --- 按鈕樣式 (Luxury Ghost Button) --- */
+        /* 按鈕樣式 */
         .btn-primary {
             background: transparent; 
             color: var(--accent);
-            border: 0.5px solid var(--accent); /* 極細銀框 */
+            border: 0.5px solid var(--accent); 
             padding: 16px;
             cursor: pointer;
             width: 100%;
@@ -226,214 +248,42 @@
             align-items: center;
             transition: background 0.3s;
             position: relative; 
-            overflow: hidden; /* 為了光澤特效 */
+            overflow: hidden; 
         }
         
-        .btn-main-text {
-            font-family: 'Noto Sans TC', sans-serif;
-            font-weight: 500;
-            letter-spacing: 4px;
-            font-size: 0.95rem;
-            margin-bottom: 4px;
-            color: #fff;
-        }
-        .btn-sub-text {
-            font-family: 'Cinzel', serif;
-            font-size: 0.55rem;
-            letter-spacing: 2px;
-            color: var(--accent);
-            opacity: 0.8;
-        }
+        .btn-main-text { font-family: 'Noto Sans TC', sans-serif; font-weight: 500; letter-spacing: 4px; font-size: 0.95rem; margin-bottom: 4px; color: #fff; }
+        .btn-sub-text { font-family: 'Cinzel', serif; font-size: 0.55rem; letter-spacing: 2px; color: var(--accent); opacity: 0.8; }
+        .btn-primary:active { transform: scale(0.98); background: var(--accent-dim); }
 
-        /* --- 🌟 修正後的金屬流光特效 (只在觸碰時觸發) --- */
-        @keyframes shine-sweep {
-            0% { left: -100%; opacity: 0; }
-            20% { opacity: 1; }
-            100% { left: 200%; opacity: 0; }
-        }
-
+        /* 金屬流光特效 */
+        @keyframes shine-sweep { 0% { left: -100%; opacity: 0; } 20% { opacity: 1; } 100% { left: 200%; opacity: 0; } }
         .luxury-shine { position: relative; overflow: hidden; z-index: 1; }
-        
-        .luxury-shine::after {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 150%; height: 100%;
-            /* 白金光澤：冷白 -> 銀 -> 冷白 */
-            background: linear-gradient(
-                120deg,
-                transparent 20%,
-                rgba(255, 255, 255, 0.1) 30%,
-                rgba(255, 255, 255, 0.5) 50%, 
-                rgba(255, 255, 255, 0.1) 70%,
-                transparent 80%
-            );
-            transform: skewX(-25deg);
-            pointer-events: none;
-            z-index: 0;
-            opacity: 0; /* 預設隱藏 */
-        }
+        .luxury-shine::after { content: ''; position: absolute; top: 0; left: -100%; width: 150%; height: 100%; background: linear-gradient(120deg, transparent 20%, rgba(255, 255, 255, 0.1) 30%, rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 0.1) 70%, transparent 80%); transform: skewX(-25deg); pointer-events: none; z-index: 0; opacity: 0; }
+        .luxury-shine:hover::after, .luxury-shine:active::after { opacity: 1; animation: shine-sweep 0.6s cubic-bezier(0.2, 0.0, 0.2, 1) forwards; }
+        .luxury-shine > * { position: relative; z-index: 2; } 
 
-        /* 關鍵：只有 hover 或 active 時才播放動畫 */
-        .luxury-shine:hover::after,
-        .luxury-shine:active::after {
-            opacity: 1;
-            animation: shine-sweep 0.6s cubic-bezier(0.2, 0.0, 0.2, 1) forwards;
-        }
-
-        /* --- 匯出專用隱藏卡片 (1080x1920) --- */
-        #exportCard {
-            position: fixed;
-            left: -9999px;
-            top: 0;
-            width: 1080px;
-            height: 1920px;
-            background: #000;
-            z-index: -1;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        #exportBg {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover; 
-        }
-
-        .card-overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, 
-                rgba(0,0,0,0.2) 0%, 
-                rgba(0,0,0,0) 40%, 
-                rgba(0,0,0,0.6) 65%, 
-                rgba(0,0,0,0.95) 90%,
-                #000 100%);
-            z-index: 2;
-        }
-
-        .card-content {
-            position: relative;
-            z-index: 10;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            padding: 80px 80px;
-            color: #fff;
-        }
-
-        .card-top {
-            position: absolute;
-            top: 80px; left: 80px; right: 80px;
-            display: flex;
-            justify-content: space-between;
-            border-top: 2px solid rgba(255,255,255,0.8);
-            padding-top: 30px;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 24px;
-            letter-spacing: 4px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
+        /* 匯出專用卡片 */
+        #exportCard { position: fixed; left: -9999px; top: 0; width: 1080px; height: 1920px; background: #000; z-index: -1; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; }
+        #exportBg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        .card-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.6) 65%, rgba(0,0,0,0.95) 90%, #000 100%); z-index: 2; }
+        .card-content { position: relative; z-index: 10; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; padding: 80px 80px; color: #fff; }
+        .card-top { position: absolute; top: 80px; left: 80px; right: 80px; display: flex; justify-content: space-between; border-top: 2px solid rgba(255,255,255,0.8); padding-top: 30px; font-family: 'Montserrat', sans-serif; font-size: 24px; letter-spacing: 4px; font-weight: 600; text-transform: uppercase; }
         .card-main { margin-bottom: 60px; }
-
-        .card-en {
-            font-family: 'Cinzel', serif;
-            font-size: 140px;
-            line-height: 0.85;
-            margin-bottom: 30px;
-            font-weight: 500;
-            letter-spacing: -4px;
-        }
-        
-        .card-cn {
-            font-family: 'Noto Sans TC', sans-serif;
-            font-size: 56px;
-            letter-spacing: 20px;
-            color: var(--accent);
-            font-weight: 700;
-            margin-bottom: 60px;
-            text-shadow: 0 10px 30px rgba(0,0,0,0.8);
-        }
-        
-        .card-desc {
-            font-family: 'Playfair Display', serif;
-            font-size: 42px;
-            font-style: italic;
-            line-height: 1.5;
-            color: #e0e0e0;
-            margin-bottom: 80px;
-            border-left: 6px solid var(--accent);
-            padding-left: 40px;
-            max-width: 90%;
-        }
-
-        .analysis-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 60px;
-            margin-bottom: 60px;
-            border-top: 1px solid rgba(255,255,255,0.3);
-            padding-top: 40px;
-        }
-
-        .analysis-item h3 {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 24px;
-            color: #888;
-            margin: 0 0 10px 0;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-        
-        .analysis-item p {
-            font-family: 'Noto Sans TC', sans-serif;
-            font-size: 32px;
-            color: #fff;
-            margin: 0;
-            font-weight: 500;
-        }
-        
-        .analysis-val {
-            font-family: 'Cinzel', serif;
-            color: var(--accent);
-            font-weight: 700;
-            margin-left: 10px;
-        }
-
-        .card-footer {
-            text-align: center;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding-top: 40px;
-            font-family: 'Cinzel', serif;
-            letter-spacing: 12px;
-            font-size: 28px;
-            color: rgba(255,255,255,0.6);
-        }
+        .card-en { font-family: 'Cinzel', serif; font-size: 140px; line-height: 0.85; margin-bottom: 30px; font-weight: 500; letter-spacing: -4px; }
+        .card-cn { font-family: 'Noto Sans TC', sans-serif; font-size: 56px; letter-spacing: 20px; color: var(--accent); font-weight: 700; margin-bottom: 60px; text-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        .card-desc { font-family: 'Playfair Display', serif; font-size: 42px; font-style: italic; line-height: 1.5; color: #e0e0e0; margin-bottom: 80px; border-left: 6px solid var(--accent); padding-left: 40px; max-width: 90%; }
+        .analysis-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; margin-bottom: 60px; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 40px; }
+        .analysis-item h3 { font-family: 'Montserrat', sans-serif; font-size: 24px; color: #888; margin: 0 0 10px 0; letter-spacing: 2px; text-transform: uppercase; }
+        .analysis-item p { font-family: 'Noto Sans TC', sans-serif; font-size: 32px; color: #fff; margin: 0; font-weight: 500; }
+        .analysis-val { font-family: 'Cinzel', serif; color: var(--accent); font-weight: 700; margin-left: 10px; }
+        .card-footer { text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 40px; font-family: 'Cinzel', serif; letter-spacing: 12px; font-size: 28px; color: rgba(255,255,255,0.6); }
 
         /* 測驗模態框 */
-        .quiz-modal {
-            position: absolute; bottom: 0; left: 0; width: 100%;
-            background: rgba(10, 10, 10, 0.98);
-            border-top: 1px solid var(--accent);
-            padding: 40px 30px;
-            z-index: 100;
-            transform: translateY(110%);
-            transition: 0.5s;
-            display: flex; flex-direction: column; align-items: center;
-        }
+        .quiz-modal { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(10, 10, 10, 0.98); border-top: 1px solid var(--accent); padding: 40px 30px; z-index: 100; transform: translateY(110%); transition: 0.5s; display: flex; flex-direction: column; align-items: center; }
         .quiz-modal.active { transform: translateY(0); }
         .quiz-q { font-size: 1.1rem; margin-bottom: 30px; text-align: center; line-height: 1.5; font-weight: 300; font-family: 'Noto Sans TC'; letter-spacing: 1px;}
         .quiz-opts { width: 100%; display: flex; gap: 15px; }
-        .q-btn { 
-            flex: 1; padding: 20px; background: rgba(255,255,255,0.03); color: #fff; 
-            border: 0.5px solid rgba(255,255,255,0.2); 
-            cursor: pointer; transition: 0.2s; font-size: 0.9rem; font-family: 'Montserrat'; letter-spacing: 1px;
-        }
+        .q-btn { flex: 1; padding: 20px; background: rgba(255,255,255,0.03); color: #fff; border: 0.5px solid rgba(255,255,255,0.2); cursor: pointer; transition: 0.2s; font-size: 0.9rem; font-family: 'Montserrat'; letter-spacing: 1px; }
         .q-btn:active { background: var(--accent); color: #000; }
 
         input[type="file"] { display: none; }
@@ -444,9 +294,34 @@
 <body>
 
     <div class="app-container">
+        
+        <div id="identityLayer">
+            <div style="text-align:center; margin-bottom:40px;">
+                <div class="id-title">ESTABLISH IDENTITY</div>
+                <div class="id-sub">EDEN VISUAL ARCHITECTURE</div>
+            </div>
+
+            <div class="input-group">
+                <input type="text" id="inputName" class="input-field" placeholder="CODENAME (你的暱稱)" autocomplete="off">
+            </div>
+            
+            <div class="input-group">
+                <input type="text" id="inputIg" class="input-field" placeholder="INSTAGRAM (IG 帳號)" autocomplete="off">
+            </div>
+
+            <button class="btn-primary luxury-shine" onclick="submitIdentity()" style="margin-top:20px;">
+                <span class="btn-main-text">開始解碼</span>
+                <span class="btn-sub-text">INITIALIZE SYSTEM</span>
+            </button>
+            
+            <div style="font-size:0.5rem; color:#444; margin-top:20px; text-align:center;">
+                SECURE CONNECTION ESTABLISHED
+            </div>
+        </div>
+
         <img id="previewImg" class="bg-preview" style="display:none;">
         
-        <div class="ui-layer">
+        <div class="ui-layer" id="mainUiLayer">
             <div class="brand-header">EDEN LAB // VISUAL AUDIT</div>
 
             <div class="upload-area" id="uploadArea">
@@ -463,9 +338,7 @@
                 <div class="preview-title" id="uiEn">--</div>
                 <div class="preview-sub" id="uiCn">--</div>
 
-                <div class="preview-desc" id="uiDesc">
-                    --
-                </div>
+                <div class="preview-desc" id="uiDesc">--</div>
                 
                 <div class="stats-minimal">
                     <div class="stat-item">
@@ -527,9 +400,7 @@
             <div class="card-main">
                 <div class="card-en" id="cardEn">THE EMPEROR</div>
                 <div class="card-cn" id="cardCn">絕對統治者</div>
-                <div class="card-desc" id="cardDesc">
-                    你的外表與靈魂高度統一。不需要言語，你的存在本身就是一種結構性的聲明。
-                </div>
+                <div class="card-desc" id="cardDesc">--</div>
                 <div class="analysis-grid">
                     <div class="analysis-item">
                         <h3>Visual Signal</h3>
@@ -552,6 +423,16 @@
     </div>
 
     <script>
+        // *** 設定區 ***
+        // 你的 Formspree 網址
+        const FORMSPREE_ENDPOINT = "https://formspree.io/f/xkogdpjr";
+
+        // *** 使用者資料 ***
+        let userData = {
+            nickname: "Guest",
+            instagram: ""
+        };
+
         const archetypeMatrix = {
             "Charisma-Ruler": { en: "THE KING", cn: "天生王者", desc: "你擁有令人無法忽視的光芒與掌控力。你的親和力是用來統治的手段。", matches: ["THE MUSE", "THE DIPLOMAT"] },
             "Charisma-Creator": { en: "THE MAVERICK", cn: "叛逆領袖", desc: "你不遵循規則，你創造規則。你的魅力來自於那種危險的不可預測性。", matches: ["THE OBSERVER", "THE ALCHEMIST"] },
@@ -593,11 +474,48 @@
             faceapi.nets.faceExpressionNet.loadFromUri('https://justadudewhohacks.github.io/face-api.js/models')
         ]).then(() => console.log("AI Ready"));
 
+        // DOM Elements
+        const identityLayer = document.getElementById('identityLayer');
+        const mainUiLayer = document.getElementById('mainUiLayer');
         const fileInput = document.getElementById('fileInput');
         const previewImg = document.getElementById('previewImg');
         const uploadArea = document.getElementById('uploadArea');
         const quizModal = document.getElementById('quizModal');
 
+        // --- STEP 1: 提交身份 & Formspree ---
+        function submitIdentity() {
+            const name = document.getElementById('inputName').value.trim();
+            const ig = document.getElementById('inputIg').value.trim();
+
+            if (!ig) {
+                alert("請輸入 IG 帳號以建立檔案。");
+                return;
+            }
+
+            userData.nickname = name || "ANONYMOUS";
+            userData.instagram = ig;
+
+            // 切換介面
+            identityLayer.style.opacity = 0;
+            identityLayer.style.pointerEvents = 'none';
+            setTimeout(() => {
+                identityLayer.style.display = 'none';
+                mainUiLayer.classList.add('active');
+            }, 800);
+
+            // 背景靜默發送資料
+            fetch(FORMSPREE_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    nickname: userData.nickname,
+                    instagram: userData.instagram,
+                    date: new Date().toLocaleString()
+                })
+            }).catch(err => console.log("Data sync error (silent)"));
+        }
+
+        // --- STEP 2: 上傳與圖片處理 ---
         fileInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -715,13 +633,12 @@
 
             let gap = Math.abs(state.visPower - internalPower);
 
-            // 更新手機預覽
+            // 更新預覽
             document.getElementById('resultPanel').style.display = 'flex';
             document.getElementById('uiEn').innerText = result.en;
             document.getElementById('uiCn').innerText = result.cn;
             document.getElementById('uiDesc').innerText = result.desc;
 
-            // 更新數據
             document.getElementById('uiVis').innerText = state.visWarmth + "%";
             document.getElementById('uiSoul').innerText = internalPower + "%";
             document.getElementById('uiGap').innerText = gap + "%";
@@ -731,13 +648,12 @@
             else if(gap < 20) gapEl.style.color = "var(--accent)";
             else gapEl.style.color = "#fff";
 
-            // 更新契合
             if (result.matches && result.matches.length >= 2) {
                 document.getElementById('uiMatch1').innerText = result.matches[0];
                 document.getElementById('uiMatch2').innerText = result.matches[1];
             }
 
-            // 更新匯出卡片
+            // 更新匯出卡片 (Personalize with Nickname)
             let gapText = "";
             if(gap > 40) gapText = `<span style="color:#A03030">HIGH (${gap}%)</span> - 你的外在信號正在背叛你的真實意圖。`;
             else if (gap > 20) gapText = `MODERATE (${gap}%) - 你的保護色運作良好，但偶爾會阻礙連結。`;
@@ -746,7 +662,12 @@
             document.getElementById('cardEn').innerText = result.en;
             document.getElementById('cardCn').innerText = result.cn;
             document.getElementById('cardDesc').innerText = result.desc;
-            document.getElementById('cardId').innerText = Math.floor(Math.random() * 9000 + 1000);
+            
+            // 使用者 ID 客製化
+            const refId = userData.nickname !== "Guest" 
+                ? userData.nickname.toUpperCase() 
+                : Math.floor(Math.random() * 9000 + 1000);
+            document.getElementById('cardId').innerText = refId;
             
             document.getElementById('valVis').innerText = state.visWarmth + "%";
             document.getElementById('valSoul').innerText = internalPower + "%";
@@ -772,7 +693,7 @@
                 backgroundColor: "#050505"
             }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = 'EDEN_COLLECTIBLE_CARD.png';
+                link.download = `EDEN_MASK_${userData.nickname}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
 
