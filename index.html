@@ -12,7 +12,6 @@
         :root {
             --bg-deep: #050505;
             --text-main: #E0E0E0;
-            /* 鉑金銀配色系統 */
             --accent: #E3E9F0; 
             --accent-dim: rgba(227, 233, 240, 0.3);
             --line-light: rgba(255, 255, 255, 0.15);
@@ -35,7 +34,6 @@
             align-items: center;
         }
 
-        /* --- 主容器 --- */
         .app-container {
             position: relative;
             width: 100%;
@@ -55,7 +53,7 @@
             z-index: 1;
         }
 
-        /* --- 登入層 (Identity Layer) --- */
+        /* Identity Layer */
         #identityLayer {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -66,203 +64,71 @@
             justify-content: center;
             align-items: center;
             padding: 40px;
-            transition: opacity 0.8s ease, transform 0.8s ease;
+            transition: opacity 0.8s ease;
         }
+        .id-title { font-family: 'Cinzel', serif; font-size: 1.8rem; color: #fff; margin-bottom: 10px; letter-spacing: 2px; }
+        .id-sub { font-family: 'Montserrat', sans-serif; font-size: 0.7rem; color: var(--accent); margin-bottom: 50px; letter-spacing: 3px; text-transform: uppercase; opacity: 0.8; }
+        .input-group { width: 100%; margin-bottom: 30px; }
+        .input-field { width: 100%; background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.3); padding: 15px 5px; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 1rem; border-radius: 0; transition: 0.3s; }
+        .input-field:focus { outline: none; border-bottom-color: var(--accent); }
 
-        .id-title {
-            font-family: 'Cinzel', serif;
-            font-size: 1.8rem;
-            color: #fff;
-            margin-bottom: 10px;
-            letter-spacing: 2px;
-            text-align: center;
-        }
-        .id-sub {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.7rem;
-            color: var(--accent);
-            margin-bottom: 50px;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            text-align: center;
-            opacity: 0.8;
-        }
-
-        .input-group {
-            width: 100%;
-            margin-bottom: 30px;
-            position: relative;
-        }
-
-        .input-field {
-            width: 100%;
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid rgba(255,255,255,0.3);
-            padding: 15px 5px;
-            color: #fff;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 1rem;
-            border-radius: 0;
-            transition: 0.3s;
-        }
-        .input-field:focus {
-            outline: none;
-            border-bottom-color: var(--accent);
-        }
-        .input-field::placeholder {
-            color: #555;
-            font-size: 0.8rem;
-            letter-spacing: 1px;
-        }
-
-        /* 隱藏的 UI 層 (主介面) */
+        /* UI Layer */
         #mainUiLayer {
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 1s ease;
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 30px;
-            overflow-y: auto;
-            scrollbar-width: none;
+            opacity: 0; pointer-events: none; transition: opacity 1s ease;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 10; display: flex; flex-direction: column; justify-content: space-between; padding: 30px;
+            overflow-y: auto; scrollbar-width: none;
         }
         #mainUiLayer.active { opacity: 1; pointer-events: auto; }
 
-        /* 通用介面樣式 */
         .brand-header {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.6rem;
-            letter-spacing: 4px;
-            color: rgba(255,255,255,0.6);
-            text-align: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            text-transform: uppercase;
-            opacity: 0.8;
+            font-family: 'Montserrat', sans-serif; font-size: 0.6rem; letter-spacing: 4px; color: rgba(255,255,255,0.6);
+            text-align: center; margin-bottom: 20px; padding-bottom: 15px; text-transform: uppercase; opacity: 0.8;
         }
 
-        /* 上傳按鈕 */
-        .upload-area {
-            flex-grow: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-        }
-
+        .upload-area { flex-grow: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; }
         .upload-circle {
-            width: 130px; height: 130px;
-            border: 0.5px solid rgba(255,255,255,0.4);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            cursor: pointer;
-            transition: 0.3s;
-            background: rgba(0,0,0,0.2);
-            backdrop-filter: blur(5px);
+            width: 130px; height: 130px; border: 0.5px solid rgba(255,255,255,0.4); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; flex-direction: column;
+            cursor: pointer; transition: 0.3s; background: rgba(0,0,0,0.2); backdrop-filter: blur(5px);
         }
-        .upload-circle:active { border-color: var(--accent); background: rgba(255,255,255,0.05); }
         .upload-text { font-family: 'Cinzel', serif; margin-top: 8px; font-size: 0.65rem; letter-spacing: 2px; color: #ccc; }
 
-        /* 手機預覽介面 */
-        .result-panel {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            padding-bottom: 20px;
-            animation: fadeIn 1.2s cubic-bezier(0.22, 1, 0.36, 1);
-            width: 100%;
-        }
+        .result-panel { display: none; flex-direction: column; align-items: center; text-align: center; padding-bottom: 20px; animation: fadeIn 1.2s cubic-bezier(0.22, 1, 0.36, 1); width: 100%; }
+        .preview-title { font-family: 'Cinzel', serif; font-size: 2.8rem; line-height: 0.9; color: #fff; margin-bottom: 5px; letter-spacing: -1px; text-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        .preview-sub { font-size: 0.9rem; color: var(--accent); letter-spacing: 6px; font-weight: 500; margin-bottom: 20px; text-shadow: 0 5px 20px rgba(0,0,0,0.8); opacity: 0.9; }
+        .preview-desc { font-family: 'Playfair Display', serif; font-size: 0.95rem; font-style: italic; color: #ccc; margin-bottom: 30px; padding: 0 10px; line-height: 1.5; font-weight: 400; }
 
-        .preview-title {
-            font-family: 'Cinzel', serif;
-            font-size: 2.8rem;
-            line-height: 0.9;
-            color: #fff;
-            margin-bottom: 5px;
-            letter-spacing: -1px;
-            text-shadow: 0 10px 30px rgba(0,0,0,0.8);
-        }
-        .preview-sub {
-            font-size: 0.9rem;
-            color: var(--accent);
-            letter-spacing: 6px;
-            font-weight: 500;
-            margin-bottom: 20px;
-            text-shadow: 0 5px 20px rgba(0,0,0,0.8);
-            opacity: 0.9;
-        }
-
-        .preview-desc {
-            font-family: 'Playfair Display', serif;
-            font-size: 0.95rem;
-            font-style: italic;
-            color: #ccc;
-            margin-bottom: 30px;
-            padding: 0 10px;
-            line-height: 1.5;
-            font-weight: 400;
-        }
-
-        /* 數據呈現 */
-        .stats-minimal {
-            display: flex;
-            width: 100%;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 30px;
-            padding: 10px 0;
-            border-top: 0.5px solid var(--line-light);
-            border-bottom: 0.5px solid var(--line-light);
-        }
-        
+        .stats-minimal { display: flex; width: 100%; justify-content: center; align-items: center; margin-bottom: 30px; padding: 10px 0; border-top: 0.5px solid var(--line-light); border-bottom: 0.5px solid var(--line-light); }
         .stat-item { padding: 0 15px; text-align: center; }
         .stat-label { font-family: 'Montserrat', sans-serif; font-size: 0.5rem; letter-spacing: 2px; color: #888; display: block; margin-bottom: 4px; }
         .stat-val { font-family: 'Cinzel', serif; font-size: 1.1rem; color: #fff; }
         .stat-divider { width: 0.5px; height: 25px; background: var(--line-light); transform: rotate(15deg); }
 
-        /* 契合區塊 */
         .match-minimal { margin-bottom: 35px; text-align: center; }
         .match-label { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; letter-spacing: 3px; color: #666; margin-bottom: 12px; text-transform: uppercase; }
         .match-names { display: flex; justify-content: center; gap: 20px; font-family: 'Cinzel', serif; font-size: 0.8rem; color: var(--accent); letter-spacing: 1px; }
         .match-dot { color: #444; font-size: 0.6rem; display: flex; align-items: center; }
 
-        /* 按鈕樣式 */
         .btn-primary {
-            background: transparent; 
-            color: var(--accent);
-            border: 0.5px solid var(--accent); 
-            padding: 16px;
-            cursor: pointer;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: background 0.3s;
-            position: relative; 
-            overflow: hidden; 
+            background: transparent; color: var(--accent); border: 0.5px solid var(--accent); padding: 16px;
+            cursor: pointer; width: 100%; display: flex; flex-direction: column; align-items: center;
+            transition: background 0.3s; position: relative; overflow: hidden;
         }
-        
         .btn-main-text { font-family: 'Noto Sans TC', sans-serif; font-weight: 500; letter-spacing: 4px; font-size: 0.95rem; margin-bottom: 4px; color: #fff; }
         .btn-sub-text { font-family: 'Cinzel', serif; font-size: 0.55rem; letter-spacing: 2px; color: var(--accent); opacity: 0.8; }
-        .btn-primary:active { transform: scale(0.98); background: var(--accent-dim); }
 
-        /* 金屬流光特效 */
         @keyframes shine-sweep { 0% { left: -100%; opacity: 0; } 20% { opacity: 1; } 100% { left: 200%; opacity: 0; } }
         .luxury-shine { position: relative; overflow: hidden; z-index: 1; }
-        .luxury-shine::after { content: ''; position: absolute; top: 0; left: -100%; width: 150%; height: 100%; background: linear-gradient(120deg, transparent 20%, rgba(255, 255, 255, 0.1) 30%, rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 0.1) 70%, transparent 80%); transform: skewX(-25deg); pointer-events: none; z-index: 0; opacity: 0; }
+        .luxury-shine::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 150%; height: 100%;
+            background: linear-gradient(120deg, transparent 20%, rgba(255, 255, 255, 0.1) 30%, rgba(227, 233, 240, 0.7) 50%, rgba(255, 255, 255, 0.1) 70%, transparent 80%);
+            transform: skewX(-25deg); pointer-events: none; z-index: 0; opacity: 0;
+        }
         .luxury-shine:hover::after, .luxury-shine:active::after { opacity: 1; animation: shine-sweep 0.6s cubic-bezier(0.2, 0.0, 0.2, 1) forwards; }
-        .luxury-shine > * { position: relative; z-index: 2; } 
+        .luxury-shine > * { position: relative; z-index: 2; }
 
-        /* 匯出專用卡片 */
+        /* Export Card */
         #exportCard { position: fixed; left: -9999px; top: 0; width: 1080px; height: 1920px; background: #000; z-index: -1; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; }
         #exportBg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
         .card-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.6) 65%, rgba(0,0,0,0.95) 90%, #000 100%); z-index: 2; }
@@ -278,7 +144,6 @@
         .analysis-val { font-family: 'Cinzel', serif; color: var(--accent); font-weight: 700; margin-left: 10px; }
         .card-footer { text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 40px; font-family: 'Cinzel', serif; letter-spacing: 12px; font-size: 28px; color: rgba(255,255,255,0.6); }
 
-        /* 測驗模態框 */
         .quiz-modal { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(10, 10, 10, 0.98); border-top: 1px solid var(--accent); padding: 40px 30px; z-index: 100; transform: translateY(110%); transition: 0.5s; display: flex; flex-direction: column; align-items: center; }
         .quiz-modal.active { transform: translateY(0); }
         .quiz-q { font-size: 1.1rem; margin-bottom: 30px; text-align: center; line-height: 1.5; font-weight: 300; font-family: 'Noto Sans TC'; letter-spacing: 1px;}
@@ -300,81 +165,45 @@
                 <div class="id-title">ESTABLISH IDENTITY</div>
                 <div class="id-sub">EDEN VISUAL ARCHITECTURE</div>
             </div>
-
-            <div class="input-group">
-                <input type="text" id="inputName" class="input-field" placeholder="CODENAME (你的暱稱)" autocomplete="off">
-            </div>
-            
-            <div class="input-group">
-                <input type="text" id="inputIg" class="input-field" placeholder="INSTAGRAM (IG 帳號)" autocomplete="off">
-            </div>
-
+            <div class="input-group"><input type="text" id="inputName" class="input-field" placeholder="CODENAME (你的暱稱)" autocomplete="off"></div>
+            <div class="input-group"><input type="text" id="inputIg" class="input-field" placeholder="INSTAGRAM (IG 帳號)" autocomplete="off"></div>
             <button class="btn-primary luxury-shine" onclick="submitIdentity()" style="margin-top:20px;">
-                <span class="btn-main-text">開始解碼</span>
-                <span class="btn-sub-text">INITIALIZE SYSTEM</span>
+                <span class="btn-main-text">開始解碼</span><span class="btn-sub-text">INITIALIZE SYSTEM</span>
             </button>
-            
-            <div style="font-size:0.5rem; color:#444; margin-top:20px; text-align:center;">
-                SECURE CONNECTION ESTABLISHED
-            </div>
         </div>
 
         <img id="previewImg" class="bg-preview" style="display:none;">
         
         <div class="ui-layer" id="mainUiLayer">
             <div class="brand-header">EDEN LAB // VISUAL AUDIT</div>
-
             <div class="upload-area" id="uploadArea">
                 <div class="upload-circle luxury-shine" onclick="document.getElementById('fileInput').click()">
-                    <div style="font-size: 2rem; color:#fff; font-weight:100;">+</div>
-                    <div class="upload-text">UPLOAD</div>
+                    <div style="font-size: 2rem; color:#fff; font-weight:100;">+</div><div class="upload-text">UPLOAD</div>
                 </div>
             </div>
             <input type="file" id="fileInput" accept="image/*">
 
             <div class="result-panel" id="resultPanel">
                 <div style="flex-grow:1;"></div>
-                
                 <div class="preview-title" id="uiEn">--</div>
                 <div class="preview-sub" id="uiCn">--</div>
-
                 <div class="preview-desc" id="uiDesc">--</div>
-                
                 <div class="stats-minimal">
-                    <div class="stat-item">
-                        <span class="stat-label">VISUAL</span>
-                        <span class="stat-val" id="uiVis">0%</span>
-                    </div>
+                    <div class="stat-item"><span class="stat-label">VISUAL</span><span class="stat-val" id="uiVis">0%</span></div>
                     <div class="stat-divider"></div>
-                    <div class="stat-item">
-                        <span class="stat-label">SOUL</span>
-                        <span class="stat-val" id="uiSoul">0%</span>
-                    </div>
+                    <div class="stat-item"><span class="stat-label">SOUL</span><span class="stat-val" id="uiSoul">0%</span></div>
                     <div class="stat-divider"></div>
-                    <div class="stat-item">
-                        <span class="stat-label">GAP</span>
-                        <span class="stat-val" id="uiGap" style="color:var(--accent)">0%</span>
-                    </div>
+                    <div class="stat-item"><span class="stat-label">GAP</span><span class="stat-val" id="uiGap" style="color:var(--accent)">0%</span></div>
                 </div>
-
                 <div class="match-minimal">
                     <div class="match-label">HIGHLY COMPATIBLE WITH</div>
-                    <div class="match-names">
-                        <span id="uiMatch1">--</span>
-                        <span class="match-dot">●</span>
-                        <span id="uiMatch2">--</span>
-                    </div>
+                    <div class="match-names"><span id="uiMatch1">--</span><span class="match-dot">●</span><span id="uiMatch2">--</span></div>
                 </div>
-
                 <div class="action-group" style="width: 100%;">
                     <button class="btn-primary luxury-shine" onclick="generateAndSave()" id="saveBtn">
-                        <span class="btn-main-text">分享結果</span>
-                        <span class="btn-sub-text">EXTRACT VISUAL REPORT</span>
+                        <span class="btn-main-text">分享結果</span><span class="btn-sub-text">EXTRACT VISUAL REPORT</span>
                     </button>
-                    
-                    <div style="font-size: 0.5rem; color: #666; text-align: center; margin-top: 20px; cursor: pointer; letter-spacing: 2px; text-transform: uppercase;" onclick="window.open('https://instagram.com/eden_d_photo','_blank')">
-                        Visual Architect: EDEN_D_PHOTO
-                    </div>
+                    <div style="font-size: 0.5rem; color: #666; text-align: center; margin-top: 20px; cursor: pointer; letter-spacing: 2px; text-transform: uppercase;" onclick="window.open('https://instagram.com/eden_d_photo','_blank')">Visual Architect: EDEN_D_PHOTO</div>
                 </div>
             </div>
         </div>
@@ -393,80 +222,66 @@
         <img id="exportBg" class="bg-preview" style="opacity: 1; filter: none;"> 
         <div class="card-overlay"></div>
         <div class="card-content">
-            <div class="card-top">
-                <span>SOCIAL MASK</span>
-                <span>NO. <span id="cardId">0000</span></span>
-            </div>
+            <div class="card-top"><span>SOCIAL MASK</span><span>NO. <span id="cardId">0000</span></span></div>
             <div class="card-main">
-                <div class="card-en" id="cardEn">THE EMPEROR</div>
-                <div class="card-cn" id="cardCn">絕對統治者</div>
+                <div class="card-en" id="cardEn">--</div>
+                <div class="card-cn" id="cardCn">--</div>
                 <div class="card-desc" id="cardDesc">--</div>
                 <div class="analysis-grid">
-                    <div class="analysis-item">
-                        <h3>Visual Signal</h3>
-                        <p>外在親和 <span class="analysis-val" id="valVis">0%</span></p>
-                    </div>
-                    <div class="analysis-item">
-                        <h3>Internal Core</h3>
-                        <p>內在野心 <span class="analysis-val" id="valSoul">0%</span></p>
-                    </div>
+                    <div class="analysis-item"><h3>Visual Signal</h3><p>外在親和 <span class="analysis-val" id="valVis">0%</span></p></div>
+                    <div class="analysis-item"><h3>Internal Core</h3><p>內在野心 <span class="analysis-val" id="valSoul">0%</span></p></div>
                     <div class="analysis-item" style="grid-column: span 2; border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 20px;">
-                        <h3>Misunderstanding Index (誤解指數)</h3>
-                        <p id="gapText" style="font-size: 28px; line-height: 1.4;"></p>
+                        <h3>Misunderstanding Index (誤解指數)</h3><p id="gapText" style="font-size: 28px; line-height: 1.4;"></p>
                     </div>
                 </div>
             </div>
-            <div class="card-footer">
-                EDEN_D_PHOTO
-            </div>
+            <div class="card-footer">EDEN_D_PHOTO</div>
         </div>
     </div>
 
     <script>
-        // *** 設定區 ***
-        // 你的 Formspree 網址
         const FORMSPREE_ENDPOINT = "https://formspree.io/f/xkogdpjr";
+        let userData = { nickname: "Guest", instagram: "" };
 
-        // *** 使用者資料 ***
-        let userData = {
-            nickname: "Guest",
-            instagram: ""
-        };
+        // 5道核心題目：判斷 [結構/流動] 與 [自我/他人]
+        // 變數邏輯：Structure(理性), Flow(感性), Self(自我), Others(群體)
+        // 最終組合：Ruler(Structure+Self), Creator(Flow+Self), Sage(Structure+Others), Lover(Flow+Others)
+        const quizData = [
+            { q: "關於混亂：當計畫完全被打亂時，你的第一反應是？", a: "憤怒並立刻著手重建秩序 (Structure)", b: "感到興奮並尋找新的可能性 (Flow)", type: "SF" },
+            { q: "關於評價：你更害怕被別人認為是？", a: "無能、軟弱、沒用 (Structure/Self)", b: "無趣、冷漠、被孤立 (Flow/Others)", type: "Value" },
+            { q: "關於社交：在充滿陌生人的派對上，你的狀態是？", a: "像觀察者一樣掃描全場 (Structure)", b: "像變色龍一樣融入氣氛 (Flow)", type: "SF" },
+            { q: "關於決策：當你的直覺跟數據衝突時？", a: "我只相信看得到的證據 (Structure)", b: "我相信我內心的聲音 (Flow)", type: "SF" },
+            { q: "關於本質：剝去所有的社會頭銜後，你覺得自己更像？", a: "一把精準的手術刀 (Structure)", b: "一陣捉摸不定的風 (Flow)", type: "SF" }
+        ];
 
+        // 16型人格資料庫 (The 4x4 Matrix)
         const archetypeMatrix = {
+            // Visual: Charisma (High Openness, High Energy)
             "Charisma-Ruler": { en: "THE KING", cn: "天生王者", desc: "你擁有令人無法忽視的光芒與掌控力。你的親和力是用來統治的手段。", matches: ["THE MUSE", "THE DIPLOMAT"] },
             "Charisma-Creator": { en: "THE MAVERICK", cn: "叛逆領袖", desc: "你不遵循規則，你創造規則。你的魅力來自於那種危險的不可預測性。", matches: ["THE OBSERVER", "THE ALCHEMIST"] },
             "Charisma-Sage": { en: "THE VISIONARY", cn: "遠見者", desc: "你看得比別人都遠。你的熱情不是為了社交，而是為了佈道你的真理。", matches: ["THE ARCHITECT", "THE GHOST"] },
-            "Charisma-Lover": { en: "THE IDOL", cn: "萬人迷", desc: "你是聚光燈的寵兒。所有人都以為是你照亮了他們，其實是你需要他們的目光。", matches: ["THE CAREGIVER", "THE PROTECTOR"] },
-            "Affinity-Ruler": { en: "THE SMILING ASSASSIN", cn: "笑面殺手", desc: "最危險的人格。你看起來人畜無害，但內心早已佈局好了一切殺招。", matches: ["THE EMPEROR", "THE JUDGE"] },
+            "Charisma-Lover": { en: "THE IDOL", cn: "發光體", desc: "你是行走的能量場。你燃燒自己來照亮氣氛，看似對誰都好，其實內心極度害怕孤獨。", matches: ["THE CAREGIVER", "THE PROTECTOR"] },
+
+            // Visual: Affinity (High Openness, Low Energy)
+            "Affinity-Ruler": { en: "VELVET PISTOL", cn: "絲絨手槍", desc: "你擁有極具欺騙性的親和力。你總是笑著聽完別人的廢話，心裡卻已經畫好了紅線。", matches: ["THE EMPEROR", "THE JUDGE"] },
             "Affinity-Creator": { en: "THE MUSE", cn: "靈感繆斯", desc: "你的存在本身就是一種治癒。你用溫柔包裹著極度鋒利的創造力。", matches: ["THE KING", "THE MAVERICK"] },
             "Affinity-Sage": { en: "THE DIPLOMAT", cn: "外交官", desc: "你是群體中的潤滑劑。你用邏輯解決問題，用微笑解決人。", matches: ["THE KING", "THE ARCHITECT"] },
             "Affinity-Lover": { en: "THE CAREGIVER", cn: "守護者", desc: "你把所有人都照顧得很好，除了你自己。你的溫暖有時是一種防禦。", matches: ["THE IDOL", "THE PROTECTOR"] },
-            "Authority-Ruler": { en: "THE EMPEROR", cn: "絕對統治者", desc: "表裡如一的強勢。不需要開口，你的氣場已經下達了指令。", matches: ["THE SMILING ASSASSIN", "THE DIPLOMAT"] },
-            "Authority-Creator": { en: "THE ARCHITECT", cn: "架構師", desc: "你對混亂零容忍。你用冰冷的理性，構建著完美無瑕的世界。", matches: ["THE VISIONARY", "THE DIPLOMAT"] },
+
+            // Visual: Authority (Low Openness, High Energy)
+            "Authority-Ruler": { en: "THE EMPEROR", cn: "絕對立方", desc: "表裡如一的強勢。你的臉上寫著生人勿近，因為你討厭低效率的社交。", matches: ["THE SMILING ASSASSIN", "THE DIPLOMAT"] },
+            "Authority-Creator": { en: "THE ARCHITECT", cn: "顛覆架構師", desc: "你對混亂零容忍。你用冰冷的理性，構建著完美無瑕的世界。", matches: ["THE VISIONARY", "THE DIPLOMAT"] },
             "Authority-Sage": { en: "THE JUDGE", cn: "審判者", desc: "你的目光如炬，沒有任何謊言能在你面前存活。真相是你唯一的信仰。", matches: ["THE SMILING ASSASSIN", "THE PUPPET MASTER"] },
             "Authority-Lover": { en: "THE PROTECTOR", cn: "鐵壁", desc: "你用冷酷武裝自己，只為了守護身後最柔軟的那一塊淨土。", matches: ["THE IDOL", "THE CAREGIVER"] },
-            "Mystery-Ruler": { en: "THE PUPPET MASTER", cn: "幕後操盤手", desc: "沒人知道你在想什麼，這正是你想要的。你在陰影中編織著命運的線。", matches: ["THE JUDGE", "THE OBSERVER"] },
+
+            // Visual: Mystery (Low Openness, Low Energy)
+            "Mystery-Ruler": { en: "PUPPET MASTER", cn: "幕後操盤手", desc: "沒人知道你在想什麼，這正是你想要的。你在陰影中編織著命運的線。", matches: ["THE JUDGE", "THE OBSERVER"] },
             "Mystery-Creator": { en: "THE ALCHEMIST", cn: "煉金術士", desc: "你將孤獨轉化為黃金。你的世界很小，但深不見底。", matches: ["THE MAVERICK", "THE GHOST"] },
             "Mystery-Sage": { en: "THE OBSERVER", cn: "局外人", desc: "你冷眼旁觀著這場名為人生的戲劇，從不輕易入戲。", matches: ["THE PUPPET MASTER", "THE MAVERICK"] },
-            "Mystery-Lover": { en: "THE GHOST", cn: "幽靈情人", desc: "你若即若離，讓人抓不住。你的疏離感反而是一種致命的吸引力。", matches: ["THE VISIONARY", "THE ALCHEMIST"] }
+            "Mystery-Lover": { en: "DEEP DIVER", cn: "深海潛行者", desc: "你的冷漠是因為過度敏感。你用防彈玻璃隔絕世界，只為了尋找真正聽得懂頻率的靈魂。", matches: ["THE VISIONARY", "THE ALCHEMIST"] }
         };
 
-        const quizData = [
-            { q: "在團隊發生爭執時，你的第一直覺是？", a: "維護關係與氣氛 (Feel)", b: "釐清誰對誰錯 (Logic)", type: "FL" },
-            { q: "你更希望別人如何形容你？", a: "強大、令人敬畏 (Power)", b: "有趣、令人喜愛 (Love)", type: "PL" },
-            { q: "做決策時，你通常相信？", a: "直覺與靈感 (Intuition)", b: "數據與經驗 (Data)", type: "ID" },
-            { q: "面對混亂的環境，你會？", a: "試圖掌控並建立秩序 (Control)", b: "適應並尋找樂趣 (Flow)", type: "CF" },
-            { q: "你認為成功的定義是？", a: "實現自我價值 (Self)", b: "影響並幫助他人 (Others)", type: "SO" }
-        ];
-
-        let state = {
-            visWarmth: 0,
-            visPower: 0,
-            soulScore: { Ruler: 0, Creator: 0, Sage: 0, Lover: 0 },
-            qIdx: 0,
-            originalImageFile: null
-        };
+        let state = { visWarmth: 0, visPower: 0, quizScores: { Structure: 0, Flow: 0, Self: 0, Others: 0 }, qIdx: 0, originalImageFile: null };
 
         Promise.all([
             faceapi.nets.tinyFaceDetector.loadFromUri('https://justadudewhohacks.github.io/face-api.js/models'),
@@ -474,7 +289,7 @@
             faceapi.nets.faceExpressionNet.loadFromUri('https://justadudewhohacks.github.io/face-api.js/models')
         ]).then(() => console.log("AI Ready"));
 
-        // DOM Elements
+        // Elements
         const identityLayer = document.getElementById('identityLayer');
         const mainUiLayer = document.getElementById('mainUiLayer');
         const fileInput = document.getElementById('fileInput');
@@ -482,55 +297,26 @@
         const uploadArea = document.getElementById('uploadArea');
         const quizModal = document.getElementById('quizModal');
 
-        // --- STEP 1: 提交身份 & Formspree ---
+        // Functions
         function submitIdentity() {
             const name = document.getElementById('inputName').value.trim();
             const ig = document.getElementById('inputIg').value.trim();
-
-            if (!ig) {
-                alert("請輸入 IG 帳號以建立檔案。");
-                return;
-            }
-
+            if (!ig) { alert("請輸入 IG 帳號以建立檔案。"); return; }
             userData.nickname = name || "ANONYMOUS";
             userData.instagram = ig;
-
-            // 切換介面
-            identityLayer.style.opacity = 0;
-            identityLayer.style.pointerEvents = 'none';
-            setTimeout(() => {
-                identityLayer.style.display = 'none';
-                mainUiLayer.classList.add('active');
-            }, 800);
-
-            // 背景靜默發送資料
-            fetch(FORMSPREE_ENDPOINT, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    nickname: userData.nickname,
-                    instagram: userData.instagram,
-                    date: new Date().toLocaleString()
-                })
-            }).catch(err => console.log("Data sync error (silent)"));
+            identityLayer.style.opacity = 0; identityLayer.style.pointerEvents = 'none';
+            setTimeout(() => { identityLayer.style.display = 'none'; mainUiLayer.classList.add('active'); }, 800);
+            fetch(FORMSPREE_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nickname: userData.nickname, instagram: userData.instagram, date: new Date().toLocaleString() }) }).catch(err => console.log("Silent sync"));
         }
 
-        // --- STEP 2: 上傳與圖片處理 ---
         fileInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
             state.originalImageFile = file;
-
             const reader = new FileReader();
             reader.onload = (evt) => {
-                previewImg.src = evt.target.result;
-                previewImg.style.display = 'block';
-                uploadArea.style.display = 'none';
-                
-                cropImageTo916(evt.target.result).then(croppedDataUrl => {
-                    document.getElementById('exportBg').src = croppedDataUrl;
-                });
-
+                previewImg.src = evt.target.result; previewImg.style.display = 'block'; uploadArea.style.display = 'none';
+                cropImageTo916(evt.target.result).then(croppedDataUrl => { document.getElementById('exportBg').src = croppedDataUrl; });
                 analyzeFace();
             };
             reader.readAsDataURL(file);
@@ -540,34 +326,14 @@
             return new Promise((resolve) => {
                 const img = new Image();
                 img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    const targetW = 1080;
-                    const targetH = 1920;
-                    canvas.width = targetW;
-                    canvas.height = targetH;
-                    
-                    const imgRatio = img.width / img.height;
-                    const targetRatio = targetW / targetH;
-                    
+                    const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d');
+                    const targetW = 1080; const targetH = 1920; canvas.width = targetW; canvas.height = targetH;
+                    const imgRatio = img.width / img.height; const targetRatio = targetW / targetH;
                     let drawW, drawH, startX, startY;
-                    
-                    if (imgRatio > targetRatio) {
-                        drawH = targetH;
-                        drawW = img.width * (targetH / img.height);
-                        startX = (targetW - drawW) / 2;
-                        startY = 0;
-                    } else {
-                        drawW = targetW;
-                        drawH = img.height * (targetW / img.width);
-                        startX = 0;
-                        startY = (targetH - drawH) / 2;
-                    }
-                    
-                    ctx.drawImage(img, startX, startY, drawW, drawH);
-                    resolve(canvas.toDataURL('image/jpeg', 0.95));
-                };
-                img.src = imageSrc;
+                    if (imgRatio > targetRatio) { drawH = targetH; drawW = img.width * (targetH / img.height); startX = (targetW - drawW) / 2; startY = 0; }
+                    else { drawW = targetW; drawH = img.height * (targetW / img.width); startX = 0; startY = (targetH - drawH) / 2; }
+                    ctx.drawImage(img, startX, startY, drawW, drawH); resolve(canvas.toDataURL('image/jpeg', 0.95));
+                }; img.src = imageSrc;
             });
         }
 
@@ -580,10 +346,7 @@
                     state.visPower = Math.round((exp.neutral * 60) + (exp.angry * 40) - (exp.happy * 20));
                     state.visWarmth = Math.min(100, Math.max(10, state.visWarmth));
                     state.visPower = Math.min(100, Math.max(10, state.visPower));
-                } else {
-                    state.visWarmth = 60;
-                    state.visPower = 40;
-                }
+                } else { state.visWarmth = 60; state.visPower = 40; }
                 startQuiz();
             }, 1000);
         }
@@ -599,13 +362,12 @@
         }
         function handleAnswer(choice) {
             const type = quizData[state.qIdx].type;
-            if (type === 'FL') choice === 0 ? state.soulScore.Lover++ : state.soulScore.Sage++;
-            if (type === 'PL') choice === 0 ? state.soulScore.Ruler++ : state.soulScore.Lover++;
-            if (type === 'ID') choice === 0 ? state.soulScore.Creator++ : state.soulScore.Sage++;
-            if (type === 'CF') choice === 0 ? state.soulScore.Ruler++ : state.soulScore.Creator++;
-            if (type === 'SO') choice === 0 ? state.soulScore.Ruler++ : state.soulScore.Lover++;
-            state.qIdx++;
-            renderQuestion();
+            if(type === 'SF') { choice === 0 ? state.quizScores.Structure++ : state.quizScores.Flow++; }
+            if(type === 'Value') { 
+                if(choice === 0) { state.quizScores.Structure++; state.quizScores.Self++; }
+                else { state.quizScores.Flow++; state.quizScores.Others++; }
+            }
+            state.qIdx++; renderQuestion();
         }
         function finishQuiz() {
             quizModal.classList.remove('active');
@@ -613,62 +375,78 @@
         }
 
         function calculateArchetype() {
+            // 1. Determine Visual Type
             let visType = "";
             if (state.visWarmth > 50 && state.visPower > 50) visType = "Charisma";
             else if (state.visWarmth > 50 && state.visPower <= 50) visType = "Affinity";
             else if (state.visWarmth <= 50 && state.visPower > 50) visType = "Authority";
             else visType = "Mystery";
 
-            const scores = state.soulScore;
-            let soulType = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+            // 2. Determine Soul Type based on Quiz
+            let soulType = "";
+            const scores = state.quizScores;
+            const isStructure = scores.Structure >= scores.Flow;
+            const isSelf = scores.Self >= scores.Others; // Simplified logic, usually Self/Others is balanced by other questions but for now simple majority.
+            
+            // Adjust logic: Self/Others default to Self if Structure is high, just to map to the 4 archetypes simply.
+            // Let's use a simpler mapping:
+            // Structure + Self = Ruler
+            // Flow + Self = Creator
+            // Structure + Others = Sage
+            // Flow + Others = Lover
+            
+            // Re-eval based on 5 Qs:
+            // We have Structure vs Flow count.
+            // Let's randomly assign Self/Others based on the 'Value' question or just simplify:
+            // If Structure > Flow: check if 'Value' was A (Self) or B (Others)
+            
+            // Simplified Logic for 4 Quadrants from 5 questions:
+            if(scores.Structure > scores.Flow) {
+                // Tend towards Ruler or Sage
+                // Tie breaker or sub-condition? Let's say high power visual pushes to Ruler, low to Sage? No, soul should be independent.
+                // Let's use randomness for the sub-type if unclear, or just based on the Q2 answer if available.
+                // For this demo, let's assume Structure -> Ruler (Dominant)
+                soulType = "Ruler"; 
+                if(scores.Others > 0) soulType = "Sage"; // If they chose Others in Q2/Q5
+            } else {
+                // Tend towards Creator or Lover
+                soulType = "Creator";
+                if(scores.Others > 0) soulType = "Lover";
+            }
 
             const key = `${visType}-${soulType}`;
             const result = archetypeMatrix[key] || archetypeMatrix["Mystery-Sage"];
 
-            let internalPower = 0;
-            if(soulType === 'Ruler') internalPower = 90;
-            if(soulType === 'Creator') internalPower = 70;
-            if(soulType === 'Sage') internalPower = 60;
-            if(soulType === 'Lover') internalPower = 30;
-
+            // Gap & Display
+            let internalPower = (soulType === 'Ruler' || soulType === 'Creator') ? 80 : 40;
             let gap = Math.abs(state.visPower - internalPower);
+            let gapText = gap > 40 ? `<span style="color:#A03030">HIGH (${gap}%)</span> - 你的外在信號正在背叛你的真實意圖。` : 
+                          gap > 20 ? `MODERATE (${gap}%) - 你的保護色運作良好，但偶爾會阻礙連結。` : 
+                          `<span style="color:#E3E9F0">LOW (${gap}%)</span> - 表裡如一。你的靈魂與外表頻率高度同步。`;
 
-            // 更新預覽
-            document.getElementById('resultPanel').style.display = 'flex';
-            document.getElementById('uiEn').innerText = result.en;
-            document.getElementById('uiCn').innerText = result.cn;
-            document.getElementById('uiDesc').innerText = result.desc;
-
-            document.getElementById('uiVis').innerText = state.visWarmth + "%";
-            document.getElementById('uiSoul').innerText = internalPower + "%";
-            document.getElementById('uiGap').innerText = gap + "%";
-            
             const gapEl = document.getElementById('uiGap');
             if(gap > 40) gapEl.style.color = "var(--alert)";
             else if(gap < 20) gapEl.style.color = "var(--accent)";
             else gapEl.style.color = "#fff";
 
-            if (result.matches && result.matches.length >= 2) {
+            // Update UI
+            document.getElementById('resultPanel').style.display = 'flex';
+            document.getElementById('uiEn').innerText = result.en;
+            document.getElementById('uiCn').innerText = result.cn;
+            document.getElementById('uiDesc').innerText = result.desc;
+            document.getElementById('uiVis').innerText = state.visWarmth + "%";
+            document.getElementById('uiSoul').innerText = internalPower + "%";
+            document.getElementById('uiGap').innerText = gap + "%";
+            if (result.matches) {
                 document.getElementById('uiMatch1').innerText = result.matches[0];
                 document.getElementById('uiMatch2').innerText = result.matches[1];
             }
 
-            // 更新匯出卡片 (Personalize with Nickname)
-            let gapText = "";
-            if(gap > 40) gapText = `<span style="color:#A03030">HIGH (${gap}%)</span> - 你的外在信號正在背叛你的真實意圖。`;
-            else if (gap > 20) gapText = `MODERATE (${gap}%) - 你的保護色運作良好，但偶爾會阻礙連結。`;
-            else gapText = `<span style="color:#E3E9F0">LOW (${gap}%)</span> - 表裡如一。你的靈魂與外表頻率高度同步。`;
-
+            // Update Export
             document.getElementById('cardEn').innerText = result.en;
             document.getElementById('cardCn').innerText = result.cn;
             document.getElementById('cardDesc').innerText = result.desc;
-            
-            // 使用者 ID 客製化
-            const refId = userData.nickname !== "Guest" 
-                ? userData.nickname.toUpperCase() 
-                : Math.floor(Math.random() * 9000 + 1000);
-            document.getElementById('cardId').innerText = refId;
-            
+            document.getElementById('cardId').innerText = userData.nickname !== "Guest" ? userData.nickname.toUpperCase() : "0000";
             document.getElementById('valVis').innerText = state.visWarmth + "%";
             document.getElementById('valSoul').innerText = internalPower + "%";
             document.getElementById('gapText').innerHTML = gapText;
@@ -683,20 +461,11 @@
             btn.querySelector('.btn-sub-text').style.color = "#000";
             btn.querySelector('.btn-main-text').style.color = "#000";
 
-            const target = document.getElementById('exportCard');
-
-            html2canvas(target, {
-                useCORS: true,
-                scale: 1, 
-                width: 1080,
-                height: 1920,
-                backgroundColor: "#050505"
-            }).then(canvas => {
+            html2canvas(document.getElementById('exportCard'), { useCORS: true, scale: 1, width: 1080, height: 1920, backgroundColor: "#050505" }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = `EDEN_MASK_${userData.nickname}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
-
                 setTimeout(() => {
                     mainText.innerText = "COLLECTED!";
                     btn.style.background = "var(--accent)";
