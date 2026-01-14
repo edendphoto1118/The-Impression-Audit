@@ -6,7 +6,7 @@
     <title>EDEN | Social Mask Decoder</title>
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;800&family=Inter:wght@300;400;600&family=Noto+Sans+TC:wght@300;500;700;900&family=Playfair+Display:ital,wght@0,400;1,400&family=Montserrat:wght@300;500;700&family=JetBrains+Mono:wght@300&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Inter:wght@300;400;600&family=Noto+Sans+TC:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;1,400&family=Montserrat:wght@300;400;500&family=JetBrains+Mono:wght@300&display=swap" rel="stylesheet">
     
     <style>
         :root {
@@ -47,7 +47,7 @@
             justify-content: center; align-items: center; padding: 40px;
             transition: opacity 0.8s ease;
         }
-        .id-title { font-family: 'Cinzel', serif; font-size: 1.8rem; color: #fff; margin-bottom: 10px; font-weight: 800; letter-spacing: 1px; }
+        .id-title { font-family: 'Cinzel', serif; font-size: 1.8rem; color: #fff; margin-bottom: 10px; font-weight: 400; letter-spacing: 2px; }
         .id-sub { font-family: 'Montserrat', sans-serif; font-size: 0.7rem; color: var(--accent); margin-bottom: 50px; letter-spacing: 3px; text-transform: uppercase; opacity: 0.8; }
         .input-group { width: 100%; margin-bottom: 30px; }
         .input-field { width: 100%; background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.3); padding: 15px 5px; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 1rem; transition: 0.3s; }
@@ -75,20 +75,34 @@
         }
         .upload-text { font-family: 'Cinzel', serif; margin-top: 8px; font-size: 0.65rem; letter-spacing: 2px; color: #ccc; }
 
-        /* Result Panel */
+        /* Result Panel (Web Preview) */
         .result-panel {
             display: none; flex-direction: column; align-items: center; text-align: center;
             padding-bottom: 20px; animation: fadeIn 1.2s cubic-bezier(0.22, 1, 0.36, 1); width: 100%;
         }
 
+        /* 改回細字體 (400) */
         .preview-title {
-            font-family: 'Cinzel', serif; font-size: 2.8rem; line-height: 0.9; color: #fff;
-            margin-bottom: 8px; font-weight: 800; letter-spacing: -1px; text-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            font-family: 'Cinzel', serif; 
+            font-size: 2.8rem; 
+            line-height: 0.9; 
+            color: #fff;
+            margin-bottom: 8px; 
+            font-weight: 400; /* Thin/Regular */
+            letter-spacing: -1px; 
+            text-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
+        
         .preview-sub {
-            font-size: 1rem; color: var(--accent); letter-spacing: 6px; font-weight: 700;
-            margin-bottom: 20px; text-shadow: 0 5px 20px rgba(0,0,0,0.8); opacity: 0.9;
+            font-size: 1rem; 
+            color: var(--accent); 
+            letter-spacing: 6px; 
+            font-weight: 500; /* Medium */
+            margin-bottom: 20px; 
+            text-shadow: 0 5px 20px rgba(0,0,0,0.8); 
+            opacity: 0.9;
         }
+
         .preview-desc {
             font-family: 'Noto Sans TC', sans-serif; font-size: 0.85rem; color: #ddd;
             margin-bottom: 30px; padding: 0 5px; line-height: 1.6; font-weight: 300;
@@ -104,7 +118,7 @@
         .stat-item { padding: 0 10px; text-align: center; flex: 1; }
         .stat-label-en { font-family: 'Montserrat', sans-serif; font-size: 0.5rem; letter-spacing: 1px; color: #888; display: block; line-height: 1.2; }
         .stat-label-cn { font-family: 'Noto Sans TC', sans-serif; font-size: 0.6rem; color: #aaa; display: block; margin-bottom: 5px; font-weight: 500; }
-        .stat-val { font-family: 'Cinzel', serif; font-size: 1.2rem; color: #fff; font-weight: 700; }
+        .stat-val { font-family: 'Cinzel', serif; font-size: 1.2rem; color: #fff; font-weight: 400; } /* 細字 */
         .stat-divider { width: 0.5px; height: 30px; background: var(--line-light); margin-top: 5px; }
 
         .info-grid { width: 100%; margin-bottom: 30px; }
@@ -113,7 +127,7 @@
             font-family: 'Montserrat', sans-serif; font-size: 0.55rem; letter-spacing: 2px; 
             color: #666; margin-bottom: 8px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 5px;
         }
-        .match-names { font-family: 'Cinzel', serif; font-size: 0.8rem; color: var(--accent); letter-spacing: 1px; font-weight: 600; }
+        .match-names { font-family: 'Cinzel', serif; font-size: 0.8rem; color: var(--accent); letter-spacing: 1px; font-weight: 400; }
         .celeb-names { font-family: 'Noto Sans TC', sans-serif; font-size: 0.85rem; color: #ddd; font-weight: 300; letter-spacing: 1px; }
 
         /* Buttons */
@@ -122,7 +136,7 @@
             padding: 16px; cursor: pointer; width: 100%; display: flex; flex-direction: column; align-items: center;
             transition: background 0.3s; position: relative; overflow: hidden;
         }
-        .btn-main-text { font-family: 'Noto Sans TC', sans-serif; font-weight: 700; letter-spacing: 4px; font-size: 0.95rem; margin-bottom: 4px; color: #fff; }
+        .btn-main-text { font-family: 'Noto Sans TC', sans-serif; font-weight: 500; letter-spacing: 4px; font-size: 0.95rem; margin-bottom: 4px; color: #fff; }
         .btn-sub-text { font-family: 'Cinzel', serif; font-size: 0.55rem; letter-spacing: 2px; color: var(--accent); opacity: 0.8; }
         .btn-primary:active { transform: scale(0.98); background: var(--accent-dim); }
 
@@ -133,38 +147,54 @@
         .luxury-shine:hover::after, .luxury-shine:active::after { opacity: 1; animation: shine-sweep 0.6s cubic-bezier(0.2, 0.0, 0.2, 1) forwards; }
         .luxury-shine > * { position: relative; z-index: 2; } 
 
-        /* --- Export Card (Updated for Safe Zones) --- */
+        /* --- Export Card (Updated for Thin Fonts & Layout) --- */
         #exportCard { position: fixed; left: -9999px; top: 0; width: 1080px; height: 1920px; background: #000; z-index: -1; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; }
         #exportBg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
         .card-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.6) 65%, rgba(0,0,0,0.95) 90%, #000 100%); z-index: 2; }
-        /* 增加左右 Padding 到 100px 以確保安全距離 */
         .card-content { position: relative; z-index: 10; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; padding: 100px 100px; color: #fff; }
-        .card-top { position: absolute; top: 80px; left: 80px; right: 80px; display: flex; justify-content: space-between; border-top: 2px solid rgba(255,255,255,0.8); padding-top: 30px; font-family: 'Montserrat', sans-serif; font-size: 24px; letter-spacing: 4px; font-weight: 600; text-transform: uppercase; }
-        .card-main { margin-bottom: 60px; width: 100%; }
         
-        /* 標題設定：預設 140px，但會透過 JS 動態調整，確保不爆版 */
+        .card-top { 
+            position: absolute; top: 80px; left: 80px; right: 80px; 
+            display: flex; justify-content: space-between; 
+            border-top: 2px solid rgba(255,255,255,0.8); padding-top: 30px; 
+            font-family: 'Montserrat', sans-serif; font-size: 24px; 
+            letter-spacing: 4px; font-weight: 400; /* Thin */
+            text-transform: uppercase; 
+        }
+        
+        .card-main { margin-bottom: 60px; }
+        
+        /* 匯出卡片：細字體優化 */
         .card-en { 
             font-family: 'Cinzel', serif; 
             font-size: 140px; 
-            line-height: 0.9; /* 稍微拉開行高防止疊字 */
+            line-height: 0.85; 
             margin-bottom: 30px; 
-            font-weight: 800; 
-            letter-spacing: -4px; 
-            word-wrap: break-word; /* 防止極端狀況 */
+            font-weight: 400; /* Thin */
+            letter-spacing: -2px; 
         }
         
-        .card-cn { font-family: 'Noto Sans TC', sans-serif; font-size: 56px; letter-spacing: 20px; color: var(--accent); font-weight: 900; margin-bottom: 60px; text-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        .card-cn { 
+            font-family: 'Noto Sans TC', sans-serif; 
+            font-size: 56px; 
+            letter-spacing: 20px; 
+            color: var(--accent); 
+            font-weight: 500; /* Medium, not Bold */
+            margin-bottom: 60px; 
+            text-shadow: 0 10px 30px rgba(0,0,0,0.8); 
+        }
+        
         .card-desc { font-family: 'Noto Sans TC', sans-serif; font-size: 32px; color: #e0e0e0; margin-bottom: 60px; border-left: 6px solid var(--accent); padding-left: 40px; max-width: 100%; line-height: 1.6; font-weight: 300; }
         
         .card-data-grid { display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.3); border-bottom: 1px solid rgba(255,255,255,0.3); padding: 40px 0; margin-bottom: 60px; }
         .c-stat-block { text-align: center; width: 30%; }
         .c-label-en { font-family: 'Montserrat'; font-size: 20px; color: #888; letter-spacing: 2px; }
-        .c-label-cn { font-family: 'Noto Sans TC'; font-size: 24px; color: #aaa; margin-bottom: 15px; font-weight: 500; }
-        .c-val { font-family: 'Cinzel'; font-size: 56px; color: #fff; font-weight: 700; }
+        .c-label-cn { font-family: 'Noto Sans TC'; font-size: 24px; color: #aaa; margin-bottom: 15px; font-weight: 400; }
+        .c-val { font-family: 'Cinzel'; font-size: 56px; color: #fff; font-weight: 400; }
         
         .c-extra-block { margin-bottom: 40px; }
         .c-extra-label { font-family: 'Montserrat'; font-size: 22px; color: #666; letter-spacing: 3px; margin-bottom: 15px; text-transform: uppercase; }
-        .c-extra-val { font-family: 'Cinzel', 'Noto Sans TC', sans-serif; font-size: 36px; color: var(--accent); font-weight: 500; letter-spacing: 1px; }
+        .c-extra-val { font-family: 'Cinzel', 'Noto Sans TC', sans-serif; font-size: 36px; color: var(--accent); font-weight: 400; letter-spacing: 1px; }
         .c-celeb-val { font-family: 'Noto Sans TC'; font-size: 32px; color: #ddd; font-weight: 300; letter-spacing: 1px; }
 
         .card-footer { text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 40px; font-family: 'Cinzel', serif; letter-spacing: 12px; font-size: 28px; color: rgba(255,255,255,0.6); }
@@ -253,7 +283,7 @@
         <img id="exportBg" class="bg-preview" style="opacity: 1; filter: none;"> 
         <div class="card-overlay"></div>
         <div class="card-content">
-            <div class="card-top"><span>SOCIAL MASK</span><span>NO. <span id="cardId">0000</span></span></div>
+            <div class="card-top"><span>SOCIAL MASK</span><span>ID : <span id="cardId">0000</span></span></div>
             <div class="card-main">
                 <div class="card-en" id="cardEn">--</div>
                 <div class="card-cn" id="cardCn">--</div>
@@ -399,14 +429,14 @@
         }
 
         function calculateArchetype() {
-            // Visual Type
+            // Visual
             let visType = "";
             if (state.visWarmth > 50 && state.visPower > 50) visType = "Charisma";
             else if (state.visWarmth > 50 && state.visPower <= 50) visType = "Affinity";
             else if (state.visWarmth <= 50 && state.visPower > 50) visType = "Authority";
             else visType = "Mystery";
 
-            // Soul Type (Determinisitic: 3 vs 3)
+            // Soul (Determinisitic)
             const isStruct = state.quizScores.Structure > state.quizScores.Flow;
             const isSelf = state.quizScores.Self > state.quizScores.Others;
 
@@ -419,6 +449,7 @@
             const key = `${visType}-${soulType}`;
             const result = archetypeMatrix[key] || archetypeMatrix["Mystery-Sage"];
 
+            // Data
             let internalPower = (soulType === 'Ruler' || soulType === 'Creator') ? 80 : 40;
             let gap = Math.abs(state.visPower - internalPower);
             let gapText = gap > 40 ? `<span style="color:#A03030">HIGH (${gap}%)</span> - 你的外在信號正在背叛你的真實意圖。` : 
@@ -428,7 +459,7 @@
             const gapEl = document.getElementById('uiGap');
             if(gap > 40) gapEl.style.color = "var(--alert)"; else if(gap < 20) gapEl.style.color = "var(--accent)"; else gapEl.style.color = "#fff";
 
-            // Update UI
+            // UI Sync
             document.getElementById('resultPanel').style.display = 'flex';
             document.getElementById('uiEn').innerText = result.en;
             document.getElementById('uiCn').innerText = result.cn;
@@ -440,10 +471,10 @@
             document.getElementById('uiMatch2').innerText = result.matches[1];
             document.getElementById('uiCelebs').innerText = result.celebs;
 
-            // Update Export Card (Dynamic Font Size for Titles)
+            // Export Card Sync
             const cardEn = document.getElementById('cardEn');
             cardEn.innerText = result.en;
-            // Dynamic resizing
+            // Dynamic Font Resizing
             if (result.en.length > 15) cardEn.style.fontSize = "90px";
             else if (result.en.length > 10) cardEn.style.fontSize = "110px";
             else cardEn.style.fontSize = "140px";
