@@ -162,11 +162,11 @@
         .c-extra-val { font-family: 'Cinzel', 'Noto Sans TC', sans-serif; font-size: 36px; color: var(--accent); font-weight: 400; letter-spacing: 1px; }
         .c-celeb-val { font-family: 'Noto Sans TC'; font-size: 32px; color: #ddd; font-weight: 300; letter-spacing: 1px; }
 
-        /* --- Footer & QR Code 區塊 --- */
+        /* --- Footer & QR Code (Black & Silver Edition) --- */
         .card-footer { 
             display: flex; 
-            justify-content: space-between; /* 左右對齊 */
-            align-items: flex-end; /* 底部對齊 */
+            justify-content: space-between; 
+            align-items: flex-end; 
             border-top: 1px solid rgba(255,255,255,0.1); 
             padding-top: 40px; 
         }
@@ -193,24 +193,19 @@
             text-align: right;
         }
 
-        /* 確保 QR Code 掃描無敵：白底方塊 */
+        /* 修正：黑底銀點 QR Code 容器 */
         .qr-box {
             width: 140px;
             height: 140px;
-            background-color: #fff; /* 絕對白底 */
-            padding: 10px; /* 留白邊 */
-            border: 1px solid var(--accent); /* 精品銀框 */
+            background-color: #000; /* 純黑底 */
+            padding: 10px; 
+            border: 1px solid var(--accent); /* 銀框 */
             display: flex;
             justify-content: center;
             align-items: center;
         }
         
-        /* QR Code 圖片自適應 */
-        .qr-box img {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
+        .qr-box img { width: 100%; height: 100%; display: block; }
 
         .quiz-modal { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(10, 10, 10, 0.98); border-top: 1px solid var(--accent); padding: 40px 30px; z-index: 100; transform: translateY(110%); transition: 0.5s; display: flex; flex-direction: column; align-items: center; }
         .quiz-modal.active { transform: translateY(0); }
@@ -264,7 +259,6 @@
                     <div class="stat-divider"></div>
                     <div class="stat-item"><span class="stat-label-en">MISUNDERSTANDING</span><span class="stat-label-cn">誤解指數</span><span class="stat-val" id="uiGap" style="color:var(--accent)">0%</span></div>
                 </div>
-
                 <div class="info-grid">
                     <div class="info-row">
                         <div class="info-label">SOUL RESONANCE <span>(契合共鳴)</span></div>
@@ -275,7 +269,6 @@
                         <div class="celeb-names" id="uiCelebs">--</div>
                     </div>
                 </div>
-
                 <div class="action-group" style="width: 100%;">
                     <button class="btn-primary luxury-shine" onclick="generateAndSave()" id="saveBtn">
                         <span class="btn-main-text">分享結果</span><span class="btn-sub-text">EXTRACT VISUAL REPORT</span>
@@ -325,7 +318,8 @@
                 <div class="footer-brand">EDEN_D_PHOTO</div>
                 <div class="footer-qr-container">
                     <div class="qr-text">SCAN TO<br>DECODE</div>
-                    <div class="qr-box" id="cardQr"></div> </div>
+                    <div class="qr-box" id="cardQr"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -370,15 +364,14 @@
             faceapi.nets.faceExpressionNet.loadFromUri('https://justadudewhohacks.github.io/face-api.js/models')
         ]).then(() => console.log("AI Ready"));
 
-        // 初始化 QR Code
-        // 指向你的 IG 帳號 (因為 Context 中你提到希望讓使用者去 IG)
+        // 黑底銀點 QR Code 設定
         const qrContainer = document.getElementById("cardQr");
         new QRCode(qrContainer, {
-            text: "https://instagram.com/eden_d_photo", // 你的 IG 連結
-            width: 120, // 圖片大小 (容器是140, 留白10)
+            text: "https://instagram.com/eden_d_photo",
+            width: 120,
             height: 120,
-            colorDark : "#000000",
-            colorLight : "#ffffff",
+            colorDark : "#E3E9F0", // 銀點
+            colorLight : "#000000", // 黑底
             correctLevel : QRCode.CorrectLevel.H
         });
 
@@ -490,7 +483,7 @@
             const gapEl = document.getElementById('uiGap');
             if(gap > 40) gapEl.style.color = "var(--alert)"; else if(gap < 20) gapEl.style.color = "var(--accent)"; else gapEl.style.color = "#fff";
 
-            // Update UI
+            // UI Sync
             document.getElementById('resultPanel').style.display = 'flex';
             document.getElementById('uiEn').innerText = result.en;
             document.getElementById('uiCn').innerText = result.cn;
@@ -502,7 +495,7 @@
             document.getElementById('uiMatch2').innerText = result.matches[1];
             document.getElementById('uiCelebs').innerText = result.celebs;
 
-            // Update Export Card (Dynamic Font Size)
+            // Export Card Sync
             const cardEn = document.getElementById('cardEn');
             cardEn.innerText = result.en;
             if (result.en.length > 15) cardEn.style.fontSize = "90px";
