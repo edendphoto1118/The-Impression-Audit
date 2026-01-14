@@ -41,7 +41,7 @@
             object-fit: cover; filter: brightness(0.6) grayscale(20%); z-index: 1;
         }
 
-        /* Identity Layer */
+        /* --- Identity Layer --- */
         #identityLayer {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20;
             background: #050505; display: flex; flex-direction: column;
@@ -54,34 +54,46 @@
         .input-field { width: 100%; background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.3); padding: 15px 5px; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 1rem; transition: 0.3s; }
         .input-field:focus { outline: none; border-bottom-color: var(--accent); }
 
-        /* 新增：隱私聲明區塊 */
+        /* 優化後的聲明區塊 */
         .disclaimer-box {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 50px;
+            padding-top: 25px;
+            border-top: 1px solid rgba(255,255,255,0.15);
             text-align: center;
-            opacity: 0.6;
-            transition: opacity 0.3s;
+            width: 100%;
         }
-        .disclaimer-box:hover { opacity: 1; }
         
         .d-title {
             font-family: 'Montserrat', sans-serif;
-            font-size: 0.6rem;
-            letter-spacing: 2px;
-            color: var(--accent);
-            margin-bottom: 8px;
+            font-size: 0.65rem;
+            letter-spacing: 3px;
+            color: #666;
+            margin-bottom: 12px;
             text-transform: uppercase;
         }
+        
         .d-text {
             font-family: 'Noto Sans TC', sans-serif;
-            font-size: 0.55rem;
-            line-height: 1.6;
-            color: #888;
-            font-weight: 300;
+            font-size: 0.75rem; /* 字體加大 */
+            line-height: 1.8;   /* 行距拉開 */
+            color: #ccc;        /* 淺灰 */
+            font-weight: 300;   /* 細字 */
+            letter-spacing: 1px;
+        }
+        
+        .d-highlight {
+            color: var(--accent);
+            font-weight: 400;
+        }
+        
+        .d-privacy {
+            display: block;
+            margin-top: 8px;
+            font-size: 0.65rem;
+            color: #666;
         }
 
-        /* UI Layer */
+        /* --- UI Layer --- */
         #mainUiLayer {
             opacity: 0; pointer-events: none; transition: opacity 1s ease;
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10;
@@ -189,18 +201,11 @@
         .c-extra-val { font-family: 'Cinzel', 'Noto Sans TC', sans-serif; font-size: 36px; color: var(--accent); font-weight: 400; letter-spacing: 1px; }
         .c-celeb-val { font-family: 'Noto Sans TC'; font-size: 32px; color: #ddd; font-weight: 300; letter-spacing: 1px; }
 
-        /* Footer & QR Code */
-        .card-footer { 
-            display: flex; justify-content: space-between; align-items: flex-end; 
-            border-top: 1px solid rgba(255,255,255,0.1); padding-top: 40px; 
-        }
+        .card-footer { display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 40px; }
         .footer-brand { font-family: 'Cinzel', serif; letter-spacing: 10px; font-size: 28px; color: rgba(255,255,255,0.6); text-align: left; }
         .footer-qr-container { display: flex; align-items: center; gap: 20px; }
         .qr-text { font-family: 'Montserrat', sans-serif; font-size: 18px; color: #888; letter-spacing: 3px; text-align: right; }
-        .qr-box {
-            width: 140px; height: 140px; background-color: #000; 
-            padding: 10px; border: 1px solid var(--accent); display: flex; justify-content: center; align-items: center;
-        }
+        .qr-box { width: 140px; height: 140px; background-color: #000; padding: 10px; border: 1px solid var(--accent); display: flex; justify-content: center; align-items: center; }
         .qr-box img { width: 100%; height: 100%; display: block; }
 
         .quiz-modal { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(10, 10, 10, 0.98); border-top: 1px solid var(--accent); padding: 40px 30px; z-index: 100; transform: translateY(110%); transition: 0.5s; display: flex; flex-direction: column; align-items: center; }
@@ -231,11 +236,11 @@
             </button>
 
             <div class="disclaimer-box">
-                <div class="d-title">⚡ PRIVATE ACCESS & REWARD</div>
+                <div class="d-title">EXCLUSIVE ACCESS</div>
                 <div class="d-text">
-                    請填寫正確 IG 帳號。EDEN 將從名單中每月隨機篩選<br>
-                    <span style="color:var(--accent); font-weight:500;">「形象互惠攝影」</span>合作對象，獲選者將透過 IG 私訊聯繫。<br>
-                    <span style="opacity:0.6;">資料僅用於本計畫聯繫，嚴守隱私不外流。</span>
+                    請填寫正確 IG 公開帳號<br>
+                    入選 <span class="d-highlight">每月互惠企劃</span> 者，將由官方私訊聯繫<br>
+                    <span class="d-privacy">資料僅供本計畫使用，嚴守隱私</span>
                 </div>
             </div>
         </div>
@@ -371,14 +376,12 @@
             faceapi.nets.faceExpressionNet.loadFromUri('https://justadudewhohacks.github.io/face-api.js/models')
         ]).then(() => console.log("AI Ready"));
 
-        // QR Code 初始化 (黑底銀點)
+        // QR Code
         const qrContainer = document.getElementById("cardQr");
         new QRCode(qrContainer, {
             text: "https://instagram.com/eden_d_photo",
-            width: 120,
-            height: 120,
-            colorDark : "#E3E9F0",
-            colorLight : "#000000",
+            width: 120, height: 120,
+            colorDark : "#E3E9F0", colorLight : "#000000",
             correctLevel : QRCode.CorrectLevel.H
         });
 
@@ -397,7 +400,7 @@
             userData.instagram = ig;
             identityLayer.style.opacity = 0; identityLayer.style.pointerEvents = 'none';
             setTimeout(() => { identityLayer.style.display = 'none'; mainUiLayer.classList.add('active'); }, 800);
-            fetch(FORMSPREE_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nickname: userData.nickname, instagram: userData.instagram, source: "EDEN_DECODER", date: new Date().toLocaleString() }) }).catch(err => console.log("Silent sync"));
+            fetch(FORMSPREE_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nickname: userData.nickname, instagram: userData.instagram, date: new Date().toLocaleString() }) }).catch(err => console.log("Silent sync"));
         }
 
         fileInput.addEventListener('change', async (e) => {
@@ -503,7 +506,7 @@
             }
             document.getElementById('uiCelebs').innerText = result.celebs;
 
-            // Export Card
+            // Export Card Sync
             const cardEn = document.getElementById('cardEn');
             cardEn.innerText = result.en;
             if (result.en.length > 15) cardEn.style.fontSize = "90px";
