@@ -54,6 +54,33 @@
         .input-field { width: 100%; background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.3); padding: 15px 5px; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 1rem; transition: 0.3s; }
         .input-field:focus { outline: none; border-bottom-color: var(--accent); }
 
+        /* 新增：隱私聲明區塊 */
+        .disclaimer-box {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+        }
+        .disclaimer-box:hover { opacity: 1; }
+        
+        .d-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.6rem;
+            letter-spacing: 2px;
+            color: var(--accent);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        .d-text {
+            font-family: 'Noto Sans TC', sans-serif;
+            font-size: 0.55rem;
+            line-height: 1.6;
+            color: #888;
+            font-weight: 300;
+        }
+
         /* UI Layer */
         #mainUiLayer {
             opacity: 0; pointer-events: none; transition: opacity 1s ease;
@@ -162,49 +189,18 @@
         .c-extra-val { font-family: 'Cinzel', 'Noto Sans TC', sans-serif; font-size: 36px; color: var(--accent); font-weight: 400; letter-spacing: 1px; }
         .c-celeb-val { font-family: 'Noto Sans TC'; font-size: 32px; color: #ddd; font-weight: 300; letter-spacing: 1px; }
 
-        /* --- Footer & QR Code (Black & Silver Edition) --- */
+        /* Footer & QR Code */
         .card-footer { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: flex-end; 
-            border-top: 1px solid rgba(255,255,255,0.1); 
-            padding-top: 40px; 
+            display: flex; justify-content: space-between; align-items: flex-end; 
+            border-top: 1px solid rgba(255,255,255,0.1); padding-top: 40px; 
         }
-        
-        .footer-brand {
-            font-family: 'Cinzel', serif; 
-            letter-spacing: 10px; 
-            font-size: 28px; 
-            color: rgba(255,255,255,0.6);
-            text-align: left;
-        }
-
-        .footer-qr-container {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .qr-text {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 18px;
-            color: #888;
-            letter-spacing: 3px;
-            text-align: right;
-        }
-
-        /* 修正：黑底銀點 QR Code 容器 */
+        .footer-brand { font-family: 'Cinzel', serif; letter-spacing: 10px; font-size: 28px; color: rgba(255,255,255,0.6); text-align: left; }
+        .footer-qr-container { display: flex; align-items: center; gap: 20px; }
+        .qr-text { font-family: 'Montserrat', sans-serif; font-size: 18px; color: #888; letter-spacing: 3px; text-align: right; }
         .qr-box {
-            width: 140px;
-            height: 140px;
-            background-color: #000; /* 純黑底 */
-            padding: 10px; 
-            border: 1px solid var(--accent); /* 銀框 */
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            width: 140px; height: 140px; background-color: #000; 
+            padding: 10px; border: 1px solid var(--accent); display: flex; justify-content: center; align-items: center;
         }
-        
         .qr-box img { width: 100%; height: 100%; display: block; }
 
         .quiz-modal { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(10, 10, 10, 0.98); border-top: 1px solid var(--accent); padding: 40px 30px; z-index: 100; transform: translateY(110%); transition: 0.5s; display: flex; flex-direction: column; align-items: center; }
@@ -233,6 +229,15 @@
             <button class="btn-primary luxury-shine" onclick="submitIdentity()" style="margin-top:20px;">
                 <span class="btn-main-text">開始解碼</span><span class="btn-sub-text">INITIALIZE SYSTEM</span>
             </button>
+
+            <div class="disclaimer-box">
+                <div class="d-title">⚡ PRIVATE ACCESS & REWARD</div>
+                <div class="d-text">
+                    請填寫正確 IG 帳號。EDEN 將從名單中每月隨機篩選<br>
+                    <span style="color:var(--accent); font-weight:500;">「形象互惠攝影」</span>合作對象，獲選者將透過 IG 私訊聯繫。<br>
+                    <span style="opacity:0.6;">資料僅用於本計畫聯繫，嚴守隱私不外流。</span>
+                </div>
+            </div>
         </div>
 
         <img id="previewImg" class="bg-preview" style="display:none;">
@@ -259,6 +264,7 @@
                     <div class="stat-divider"></div>
                     <div class="stat-item"><span class="stat-label-en">MISUNDERSTANDING</span><span class="stat-label-cn">誤解指數</span><span class="stat-val" id="uiGap" style="color:var(--accent)">0%</span></div>
                 </div>
+
                 <div class="info-grid">
                     <div class="info-row">
                         <div class="info-label">SOUL RESONANCE <span>(契合共鳴)</span></div>
@@ -269,6 +275,7 @@
                         <div class="celeb-names" id="uiCelebs">--</div>
                     </div>
                 </div>
+
                 <div class="action-group" style="width: 100%;">
                     <button class="btn-primary luxury-shine" onclick="generateAndSave()" id="saveBtn">
                         <span class="btn-main-text">分享結果</span><span class="btn-sub-text">EXTRACT VISUAL REPORT</span>
@@ -364,14 +371,14 @@
             faceapi.nets.faceExpressionNet.loadFromUri('https://justadudewhohacks.github.io/face-api.js/models')
         ]).then(() => console.log("AI Ready"));
 
-        // 黑底銀點 QR Code 設定
+        // QR Code 初始化 (黑底銀點)
         const qrContainer = document.getElementById("cardQr");
         new QRCode(qrContainer, {
             text: "https://instagram.com/eden_d_photo",
             width: 120,
             height: 120,
-            colorDark : "#E3E9F0", // 銀點
-            colorLight : "#000000", // 黑底
+            colorDark : "#E3E9F0",
+            colorLight : "#000000",
             correctLevel : QRCode.CorrectLevel.H
         });
 
@@ -390,7 +397,7 @@
             userData.instagram = ig;
             identityLayer.style.opacity = 0; identityLayer.style.pointerEvents = 'none';
             setTimeout(() => { identityLayer.style.display = 'none'; mainUiLayer.classList.add('active'); }, 800);
-            fetch(FORMSPREE_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nickname: userData.nickname, instagram: userData.instagram, date: new Date().toLocaleString() }) }).catch(err => console.log("Silent sync"));
+            fetch(FORMSPREE_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nickname: userData.nickname, instagram: userData.instagram, source: "EDEN_DECODER", date: new Date().toLocaleString() }) }).catch(err => console.log("Silent sync"));
         }
 
         fileInput.addEventListener('change', async (e) => {
@@ -483,7 +490,6 @@
             const gapEl = document.getElementById('uiGap');
             if(gap > 40) gapEl.style.color = "var(--alert)"; else if(gap < 20) gapEl.style.color = "var(--accent)"; else gapEl.style.color = "#fff";
 
-            // UI Sync
             document.getElementById('resultPanel').style.display = 'flex';
             document.getElementById('uiEn').innerText = result.en;
             document.getElementById('uiCn').innerText = result.cn;
@@ -491,11 +497,13 @@
             document.getElementById('uiVis').innerText = state.visWarmth + "%";
             document.getElementById('uiSoul').innerText = internalPower + "%";
             document.getElementById('uiGap').innerText = gap + "%";
-            document.getElementById('uiMatch1').innerText = result.matches[0];
-            document.getElementById('uiMatch2').innerText = result.matches[1];
+            if (result.matches) {
+                document.getElementById('uiMatch1').innerText = result.matches[0];
+                document.getElementById('uiMatch2').innerText = result.matches[1];
+            }
             document.getElementById('uiCelebs').innerText = result.celebs;
 
-            // Export Card Sync
+            // Export Card
             const cardEn = document.getElementById('cardEn');
             cardEn.innerText = result.en;
             if (result.en.length > 15) cardEn.style.fontSize = "90px";
