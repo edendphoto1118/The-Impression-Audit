@@ -6,7 +6,7 @@
     <title>EDEN | Social Mask Decoder</title>
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;800&family=Inter:wght@300;400;600&family=Noto+Sans+TC:wght@300;500;700&family=Playfair+Display:ital,wght@0,400;1,400&family=Montserrat:wght@300;500;600&family=JetBrains+Mono:wght@300&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;800&family=Inter:wght@300;400;600&family=Noto+Sans+TC:wght@300;500;700;900&family=Playfair+Display:ital,wght@0,400;1,400&family=Montserrat:wght@300;500;700&family=JetBrains+Mono:wght@300&display=swap" rel="stylesheet">
     
     <style>
         :root {
@@ -40,7 +40,7 @@
             object-fit: cover; filter: brightness(0.6) grayscale(20%); z-index: 1;
         }
 
-        /* --- 登入層 --- */
+        /* Identity Layer */
         #identityLayer {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20;
             background: #050505; display: flex; flex-direction: column;
@@ -53,7 +53,7 @@
         .input-field { width: 100%; background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.3); padding: 15px 5px; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 1rem; transition: 0.3s; }
         .input-field:focus { outline: none; border-bottom-color: var(--accent); }
 
-        /* --- UI 層 --- */
+        /* UI Layer */
         #mainUiLayer {
             opacity: 0; pointer-events: none; transition: opacity 1s ease;
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10;
@@ -75,7 +75,7 @@
         }
         .upload-text { font-family: 'Cinzel', serif; margin-top: 8px; font-size: 0.65rem; letter-spacing: 2px; color: #ccc; }
 
-        /* 結果展示 (手機版) */
+        /* Result Panel (Mobile) */
         .result-panel {
             display: none; flex-direction: column; align-items: center; text-align: center;
             padding-bottom: 20px; animation: fadeIn 1.2s cubic-bezier(0.22, 1, 0.36, 1); width: 100%;
@@ -95,34 +95,28 @@
             text-align: justify; text-justify: inter-ideograph;
         }
 
-        /* 數據與標籤 (優化版) */
+        /* Stats & Info */
         .stats-minimal {
-            display: flex; width: 100%; justify-content: center; align-items: flex-start; /* 改為上方對齊 */
+            display: flex; width: 100%; justify-content: center; align-items: flex-start;
             margin-bottom: 30px; padding: 15px 0;
             border-top: 0.5px solid var(--line-light); border-bottom: 0.5px solid var(--line-light);
         }
         .stat-item { padding: 0 10px; text-align: center; flex: 1; }
-        
-        /* 雙語標籤 */
         .stat-label-en { font-family: 'Montserrat', sans-serif; font-size: 0.5rem; letter-spacing: 1px; color: #888; display: block; line-height: 1.2; }
         .stat-label-cn { font-family: 'Noto Sans TC', sans-serif; font-size: 0.6rem; color: #aaa; display: block; margin-bottom: 5px; font-weight: 500; }
-        
         .stat-val { font-family: 'Cinzel', serif; font-size: 1.2rem; color: #fff; font-weight: 700; }
         .stat-divider { width: 0.5px; height: 30px; background: var(--line-light); margin-top: 5px; }
 
-        /* 契合與名人區塊 */
         .info-grid { width: 100%; margin-bottom: 30px; }
         .info-row { margin-bottom: 20px; }
         .info-label { 
             font-family: 'Montserrat', sans-serif; font-size: 0.55rem; letter-spacing: 2px; 
             color: #666; margin-bottom: 8px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 5px;
         }
-        .info-label span { font-family: 'Noto Sans TC'; font-size: 0.6rem; color: #555; font-weight: 500; }
-        
         .match-names { font-family: 'Cinzel', serif; font-size: 0.8rem; color: var(--accent); letter-spacing: 1px; font-weight: 600; }
         .celeb-names { font-family: 'Noto Sans TC', sans-serif; font-size: 0.85rem; color: #ddd; font-weight: 300; letter-spacing: 1px; }
 
-        /* 按鈕與特效 */
+        /* Buttons */
         .btn-primary {
             background: transparent; color: var(--accent); border: 0.5px solid var(--accent);
             padding: 16px; cursor: pointer; width: 100%; display: flex; flex-direction: column; align-items: center;
@@ -132,13 +126,14 @@
         .btn-sub-text { font-family: 'Cinzel', serif; font-size: 0.55rem; letter-spacing: 2px; color: var(--accent); opacity: 0.8; }
         .btn-primary:active { transform: scale(0.98); background: var(--accent-dim); }
 
+        /* Luxury Shine */
         @keyframes shine-sweep { 0% { left: -100%; opacity: 0; } 20% { opacity: 1; } 100% { left: 200%; opacity: 0; } }
         .luxury-shine { position: relative; overflow: hidden; z-index: 1; }
         .luxury-shine::after { content: ''; position: absolute; top: 0; left: -100%; width: 150%; height: 100%; background: linear-gradient(120deg, transparent 20%, rgba(255, 255, 255, 0.1) 30%, rgba(255, 255, 255, 0.5) 50%, rgba(255, 255, 255, 0.1) 70%, transparent 80%); transform: skewX(-25deg); pointer-events: none; z-index: 0; opacity: 0; }
         .luxury-shine:hover::after, .luxury-shine:active::after { opacity: 1; animation: shine-sweep 0.6s cubic-bezier(0.2, 0.0, 0.2, 1) forwards; }
         .luxury-shine > * { position: relative; z-index: 2; } 
 
-        /* 匯出卡片 (樣式同步) */
+        /* Export Card (Synced with UI) */
         #exportCard { position: fixed; left: -9999px; top: 0; width: 1080px; height: 1920px; background: #000; z-index: -1; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; }
         #exportBg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
         .card-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.6) 65%, rgba(0,0,0,0.95) 90%, #000 100%); z-index: 2; }
@@ -147,18 +142,19 @@
         .card-main { margin-bottom: 60px; }
         .card-en { font-family: 'Cinzel', serif; font-size: 140px; line-height: 0.85; margin-bottom: 30px; font-weight: 800; letter-spacing: -4px; }
         .card-cn { font-family: 'Noto Sans TC', sans-serif; font-size: 56px; letter-spacing: 20px; color: var(--accent); font-weight: 900; margin-bottom: 60px; text-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-        .card-desc { font-family: 'Noto Sans TC', sans-serif; font-size: 32px; color: #e0e0e0; margin-bottom: 80px; border-left: 6px solid var(--accent); padding-left: 40px; max-width: 90%; line-height: 1.6; font-weight: 300; }
+        .card-desc { font-family: 'Noto Sans TC', sans-serif; font-size: 32px; color: #e0e0e0; margin-bottom: 60px; border-left: 6px solid var(--accent); padding-left: 40px; max-width: 90%; line-height: 1.6; font-weight: 300; }
         
-        /* 卡片內的數據欄位 */
-        .card-stats { display: flex; justify-content: space-between; margin-bottom: 60px; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 40px; }
-        .c-stat-block { width: 30%; }
+        /* Export Only Stats Grid */
+        .card-data-grid { display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.3); border-bottom: 1px solid rgba(255,255,255,0.3); padding: 40px 0; margin-bottom: 60px; }
+        .c-stat-block { text-align: center; width: 30%; }
         .c-label-en { font-family: 'Montserrat'; font-size: 20px; color: #888; letter-spacing: 2px; }
-        .c-label-cn { font-family: 'Noto Sans TC'; font-size: 24px; color: #aaa; margin-bottom: 10px; font-weight: 500; }
-        .c-val { font-family: 'Cinzel'; font-size: 48px; color: #fff; font-weight: 700; }
+        .c-label-cn { font-family: 'Noto Sans TC'; font-size: 24px; color: #aaa; margin-bottom: 15px; font-weight: 500; }
+        .c-val { font-family: 'Cinzel'; font-size: 56px; color: #fff; font-weight: 700; }
         
-        .card-extra { margin-bottom: 60px; }
-        .c-extra-label { font-family: 'Montserrat'; font-size: 20px; color: #666; letter-spacing: 3px; margin-bottom: 15px; text-transform: uppercase; }
-        .c-extra-val { font-family: 'Noto Sans TC'; font-size: 32px; color: var(--accent); font-weight: 500; letter-spacing: 2px; }
+        .c-extra-block { margin-bottom: 40px; }
+        .c-extra-label { font-family: 'Montserrat'; font-size: 22px; color: #666; letter-spacing: 3px; margin-bottom: 15px; text-transform: uppercase; }
+        .c-extra-val { font-family: 'Cinzel', 'Noto Sans TC', sans-serif; font-size: 36px; color: var(--accent); font-weight: 500; letter-spacing: 1px; }
+        .c-celeb-val { font-family: 'Noto Sans TC'; font-size: 32px; color: #ddd; font-weight: 300; letter-spacing: 1px; }
 
         .card-footer { text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 40px; font-family: 'Cinzel', serif; letter-spacing: 12px; font-size: 28px; color: rgba(255,255,255,0.6); }
 
@@ -210,20 +206,17 @@
                 
                 <div class="stats-minimal">
                     <div class="stat-item">
-                        <span class="stat-label-en">VISUAL SIGNAL</span>
-                        <span class="stat-label-cn">外在信號</span>
+                        <span class="stat-label-en">VISUAL SIGNAL</span><span class="stat-label-cn">外在信號</span>
                         <span class="stat-val" id="uiVis">0%</span>
                     </div>
                     <div class="stat-divider"></div>
                     <div class="stat-item">
-                        <span class="stat-label-en">INTERNAL CORE</span>
-                        <span class="stat-label-cn">內在核心</span>
+                        <span class="stat-label-en">INTERNAL CORE</span><span class="stat-label-cn">內在核心</span>
                         <span class="stat-val" id="uiSoul">0%</span>
                     </div>
                     <div class="stat-divider"></div>
                     <div class="stat-item">
-                        <span class="stat-label-en">MISUNDERSTANDING</span>
-                        <span class="stat-label-cn">誤解指數</span>
+                        <span class="stat-label-en">MISUNDERSTANDING</span><span class="stat-label-cn">誤解指數</span>
                         <span class="stat-val" id="uiGap" style="color:var(--accent)">0%</span>
                     </div>
                 </div>
@@ -232,9 +225,7 @@
                     <div class="info-row">
                         <div class="info-label">SOUL RESONANCE <span>(契合共鳴)</span></div>
                         <div class="match-names">
-                            <span id="uiMatch1">--</span>
-                            <span style="margin:0 5px; color:#444;">●</span>
-                            <span id="uiMatch2">--</span>
+                            <span id="uiMatch1">--</span> <span style="margin:0 5px; color:#444;">●</span> <span id="uiMatch2">--</span>
                         </div>
                     </div>
                     <div class="info-row">
@@ -272,27 +263,31 @@
                 <div class="card-cn" id="cardCn">--</div>
                 <div class="card-desc" id="cardDesc">--</div>
                 
-                <div class="card-stats">
-                    <div class="c-stat-block">
-                        <div class="c-label-en">VISUAL</div>
-                        <div class="c-label-cn">外在信號</div>
-                        <div class="c-val" id="valVis">0%</div>
-                    </div>
-                    <div class="c-stat-block">
-                        <div class="c-label-en">SOUL</div>
-                        <div class="c-label-cn">內在核心</div>
-                        <div class="c-val" id="valSoul">0%</div>
-                    </div>
-                    <div class="c-stat-block">
-                        <div class="c-label-en" style="color:var(--alert)">GAP</div>
-                        <div class="c-label-cn" style="color:var(--alert)">誤解指數</div>
-                        <div class="c-val" id="valGap" style="color:var(--alert)">0%</div>
+                <div class="c-extra-block">
+                    <div class="c-extra-label">SOUL RESONANCE (契合共鳴)</div>
+                    <div class="c-extra-val">
+                        <span id="cardMatch1">--</span> <span style="color:#666; margin:0 10px;">●</span> <span id="cardMatch2">--</span>
                     </div>
                 </div>
 
-                <div class="card-extra">
+                <div class="c-extra-block">
                     <div class="c-extra-label">CELEBRITY ARCHETYPE (名人對照)</div>
-                    <div class="c-extra-val" id="cardCelebs">--</div>
+                    <div class="c-celeb-val" id="cardCelebs">--</div>
+                </div>
+
+                <div class="card-data-grid">
+                    <div class="c-stat-block">
+                        <div class="c-label-en">VISUAL</div><div class="c-label-cn">外在信號</div>
+                        <div class="c-val" id="valVis">0%</div>
+                    </div>
+                    <div class="c-stat-block">
+                        <div class="c-label-en">SOUL</div><div class="c-label-cn">內在核心</div>
+                        <div class="c-val" id="valSoul">0%</div>
+                    </div>
+                    <div class="c-stat-block">
+                        <div class="c-label-en" style="color:var(--alert)">GAP</div><div class="c-label-cn" style="color:var(--alert)">誤解指數</div>
+                        <div class="c-val" id="valGap" style="color:var(--alert)">0%</div>
+                    </div>
                 </div>
             </div>
             <div class="card-footer">EDEN_D_PHOTO</div>
@@ -303,35 +298,28 @@
         const FORMSPREE_ENDPOINT = "https://formspree.io/f/xkogdpjr";
         let userData = { nickname: "Guest", instagram: "" };
 
+        // 題目設計：3題 SF (結構/流動), 2題 Value (自我/他人) -> 100% 確定象限
         const quizData = [
             { q: "關於混亂：當計畫完全被打亂時，你的第一反應是？", a: "憤怒並立刻著手重建秩序", b: "感到興奮並尋找新的可能性", type: "SF" },
             { q: "關於評價：你更害怕被別人認為是？", a: "無能、軟弱、沒用", b: "無趣、冷漠、被孤立", type: "Value" },
             { q: "關於社交：在充滿陌生人的派對上，你的狀態是？", a: "像觀察者一樣掃描全場", b: "像變色龍一樣融入氣氛", type: "SF" },
             { q: "關於決策：當你的直覺跟數據衝突時？", a: "我只相信看得到的證據", b: "我相信我內心的聲音", type: "SF" },
-            { q: "關於本質：剝去所有的社會頭銜後，你覺得自己更像？", a: "一把精準的手術刀", b: "一陣捉摸不定的風", type: "SF" }
-        ];
+            { q: "關於本質：剝去所有的社會頭銜後，你覺得自己更像？", a: "一把精準的手術刀", b: "一陣捉摸不定的風", type: "Value" } 
+        ]; // Q5 改為 Value 類，平衡權重
 
-        // 16型人格完整資料庫 (含名人)
         const archetypeMatrix = {
-            // Visual: Charisma
             "Charisma-Ruler": { en: "THE SOVEREIGN", cn: "絕對君主", desc: "你擁有令人無法忽視的光芒與掌控力。你的親和力是用來統治的手段，而非取悅。", matches: ["THE MUSE", "THE DIPLOMAT"], celebs: "Robert Downey Jr. · Madonna · Beyoncé" },
             "Charisma-Creator": { en: "THE PIONEER", cn: "開拓者", desc: "你不遵循規則，你創造規則。你的魅力來自於那種危險的不可預測性。", matches: ["THE OBSERVER", "THE ALCHEMIST"], celebs: "Lady Gaga · Kanye West · Rihanna" },
             "Charisma-Sage": { en: "THE PROPHET", cn: "時代先知", desc: "你看得比別人都遠。你的熱情不是為了社交，而是為了佈道你的真理。", matches: ["THE ARCHITECT", "THE GHOST"], celebs: "Oprah Winfrey · Will Smith · Jim Carrey" },
             "Charisma-Lover": { en: "THE SUPERSTAR", cn: "傳奇巨星", desc: "你是行走的能量場。你燃燒自己來照亮氣氛，看似對誰都好，其實內心極度害怕孤獨。", matches: ["THE CAREGIVER", "THE PROTECTOR"], celebs: "Marilyn Monroe · Elvis Presley · Taylor Swift" },
-
-            // Visual: Affinity
             "Affinity-Ruler": { en: "THE STRATEGIST", cn: "微笑策路者", desc: "你擁有極具欺騙性的親和力。你總是笑著聽完別人的廢話，心裡卻已經畫好了紅線。", matches: ["THE EMPEROR", "THE JUDGE"], celebs: "Anne Hathaway · Tom Hiddleston · Barack Obama" },
             "Affinity-Creator": { en: "THE MUSE", cn: "靈感繆斯", desc: "你的存在本身就是一種治癒。你用溫柔包裹著極度鋒利的創造力。", matches: ["THE KING", "THE MAVERICK"], celebs: "Audrey Hepburn · Timothée Chalamet · Lisa (Blackpink)" },
             "Affinity-Sage": { en: "THE MEDIATOR", cn: "調停者", desc: "你是群體中的潤滑劑。你用邏輯解決問題，用微笑解決人。", matches: ["THE KING", "THE ARCHITECT"], celebs: "Keanu Reeves · Emma Watson · Hugh Jackman" },
             "Affinity-Lover": { en: "THE HEALER", cn: "治癒者", desc: "你把所有人都照顧得很好，除了你自己。你的溫暖有時是一種防禦。", matches: ["THE IDOL", "THE PROTECTOR"], celebs: "Princess Diana · Ariana Grande · Selena Gomez" },
-
-            // Visual: Authority
             "Authority-Ruler": { en: "THE COMMANDER", cn: "指揮官", desc: "表裡如一的強勢。你的臉上寫著生人勿近，因為你討厭低效率的社交。", matches: ["THE SMILING ASSASSIN", "THE DIPLOMAT"], celebs: "Steve Jobs · Gordon Ramsay · Anna Wintour" },
             "Authority-Creator": { en: "THE ARCHITECT", cn: "顛覆架構師", desc: "你對混亂零容忍。你用冰冷的理性，構建著完美無瑕的世界。", matches: ["THE VISIONARY", "THE DIPLOMAT"], celebs: "Christopher Nolan · Elon Musk · Tilda Swinton" },
             "Authority-Sage": { en: "THE ARBITER", cn: "裁決者", desc: "你的目光如炬，沒有任何謊言能在你面前存活。真相是你唯一的信仰。", matches: ["THE SMILING ASSASSIN", "THE PUPPET MASTER"], celebs: "Cate Blanchett · Benedict Cumberbatch · Meryl Streep" },
             "Authority-Lover": { en: "THE GUARDIAN", cn: "守護騎士", desc: "你用冷酷武裝自己，只為了守護身後最柔軟的那一塊淨土。", matches: ["THE IDOL", "THE CAREGIVER"], celebs: "Christian Bale · Daniel Craig · Angelina Jolie" },
-
-            // Visual: Mystery
             "Mystery-Ruler": { en: "THE MASTERMIND", cn: "幕後主腦", desc: "沒人知道你在想什麼，這正是你想要的。你在陰影中編織著命運的線。", matches: ["THE JUDGE", "THE OBSERVER"], celebs: "Cillian Murphy · Mark Zuckerberg · Rooney Mara" },
             "Mystery-Creator": { en: "THE ALCHEMIST", cn: "煉金術士", desc: "你將孤獨轉化為黃金。你的世界很小，但深不見底。", matches: ["THE MAVERICK", "THE GHOST"], celebs: "Johnny Depp · Björk · Sia" },
             "Mystery-Sage": { en: "THE PHILOSOPHER", cn: "洞察者", desc: "你冷眼旁觀著這場名為人生的戲劇，從不輕易入戲。", matches: ["THE PUPPET MASTER", "THE MAVERICK"], celebs: "Joaquin Phoenix · Bob Dylan · Wes Anderson" },
@@ -354,7 +342,7 @@
         const uploadArea = document.getElementById('uploadArea');
         const quizModal = document.getElementById('quizModal');
 
-        // Functions
+        // Step 1
         function submitIdentity() {
             const name = document.getElementById('inputName').value.trim();
             const ig = document.getElementById('inputIg').value.trim();
@@ -366,6 +354,7 @@
             fetch(FORMSPREE_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nickname: userData.nickname, instagram: userData.instagram, date: new Date().toLocaleString() }) }).catch(err => console.log("Silent sync"));
         }
 
+        // Step 2
         fileInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -421,8 +410,8 @@
             const type = quizData[state.qIdx].type;
             if(type === 'SF') { choice === 0 ? state.quizScores.Structure++ : state.quizScores.Flow++; }
             if(type === 'Value') { 
-                if(choice === 0) { state.quizScores.Structure++; state.quizScores.Self++; }
-                else { state.quizScores.Flow++; state.quizScores.Others++; }
+                if(choice === 0) { state.quizScores.Self++; } // Q2 & Q5 priority
+                else { state.quizScores.Others++; }
             }
             state.qIdx++; renderQuestion();
         }
@@ -432,34 +421,34 @@
         }
 
         function calculateArchetype() {
+            // 1. Visual Type
             let visType = "";
             if (state.visWarmth > 50 && state.visPower > 50) visType = "Charisma";
             else if (state.visWarmth > 50 && state.visPower <= 50) visType = "Affinity";
             else if (state.visWarmth <= 50 && state.visPower > 50) visType = "Authority";
             else visType = "Mystery";
 
+            // 2. Soul Type (Deterministic Logic)
+            // Structure vs Flow (Max 3 points from Q1, Q3, Q4)
+            // Self vs Others (Max 2 points from Q2, Q5)
+            // Note: Simple tie breaker: Structure wins, Self wins.
             let soulType = "";
-            const scores = state.quizScores;
-            if(scores.Structure > scores.Flow) {
-                soulType = "Ruler"; 
-                if(scores.Others > 0) soulType = "Sage"; 
-            } else {
-                soulType = "Creator";
-                if(scores.Others > 0) soulType = "Lover";
-            }
+            const isStruct = state.quizScores.Structure >= state.quizScores.Flow;
+            const isSelf = state.quizScores.Self >= state.quizScores.Others;
+
+            if (isStruct && isSelf) soulType = "Ruler";
+            else if (!isStruct && isSelf) soulType = "Creator";
+            else if (isStruct && !isSelf) soulType = "Sage";
+            else soulType = "Lover";
 
             const key = `${visType}-${soulType}`;
             const result = archetypeMatrix[key] || archetypeMatrix["Mystery-Sage"];
 
+            // 3. Data & Gap
             let internalPower = (soulType === 'Ruler' || soulType === 'Creator') ? 80 : 40;
             let gap = Math.abs(state.visPower - internalPower);
-
-            const gapEl = document.getElementById('uiGap');
-            if(gap > 40) gapEl.style.color = "var(--alert)";
-            else if(gap < 20) gapEl.style.color = "var(--accent)";
-            else gapEl.style.color = "#fff";
-
-            // Update UI
+            
+            // UI Sync
             document.getElementById('resultPanel').style.display = 'flex';
             document.getElementById('uiEn').innerText = result.en;
             document.getElementById('uiCn').innerText = result.cn;
@@ -467,22 +456,25 @@
             document.getElementById('uiVis').innerText = state.visWarmth + "%";
             document.getElementById('uiSoul').innerText = internalPower + "%";
             document.getElementById('uiGap').innerText = gap + "%";
-            
-            if (result.matches) {
-                document.getElementById('uiMatch1').innerText = result.matches[0];
-                document.getElementById('uiMatch2').innerText = result.matches[1];
-            }
+            const gapEl = document.getElementById('uiGap');
+            if(gap > 40) gapEl.style.color = "var(--alert)"; else if(gap < 20) gapEl.style.color = "var(--accent)"; else gapEl.style.color = "#fff";
+            document.getElementById('uiMatch1').innerText = result.matches[0];
+            document.getElementById('uiMatch2').innerText = result.matches[1];
             document.getElementById('uiCelebs').innerText = result.celebs;
 
-            // Update Export Card
+            // Export Card Sync
             document.getElementById('cardEn').innerText = result.en;
             document.getElementById('cardCn').innerText = result.cn;
             document.getElementById('cardDesc').innerText = result.desc;
             document.getElementById('cardId').innerText = userData.nickname !== "Guest" ? userData.nickname.toUpperCase() : "0000";
+            document.getElementById('cardMatch1').innerText = result.matches[0];
+            document.getElementById('cardMatch2').innerText = result.matches[1];
+            document.getElementById('cardCelebs').innerText = result.celebs;
             document.getElementById('valVis').innerText = state.visWarmth + "%";
             document.getElementById('valSoul').innerText = internalPower + "%";
             document.getElementById('valGap').innerText = gap + "%";
-            document.getElementById('cardCelebs').innerText = result.celebs;
+            const valGap = document.getElementById('valGap');
+            if(gap > 40) valGap.style.color = "var(--alert)"; else if(gap < 20) valGap.style.color = "var(--accent)"; else valGap.style.color = "#fff";
         }
 
         function generateAndSave() {
