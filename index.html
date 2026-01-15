@@ -4,16 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>EDEN | Social Mask Decoder</title>
+    
     <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Inter:wght@300;400;600&family=Noto+Sans+TC:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;1,400&family=Montserrat:wght@300;400;500&family=JetBrains+Mono:wght@300&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --bg-deep: #050505;
             --text-main: #E0E0E0;
-            --accent: #E3E9F0; /* 鉑金銀 */
+            --accent: #E3E9F0; /* Platinum Silver */
             --accent-dim: rgba(227, 233, 240, 0.3);
             --line-light: rgba(255, 255, 255, 0.15);
             --alert: #FF4D4D;
@@ -39,7 +41,9 @@
         .bg-preview {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             object-fit: cover; filter: brightness(0.6) grayscale(20%); z-index: 1;
+            transition: transform 10s ease; /* For Ken Burns effect */
         }
+        .bg-preview.zooming { transform: scale(1.1); }
 
         /* --- Identity Layer --- */
         #identityLayer {
@@ -51,38 +55,61 @@
         .id-title { font-family: 'Cinzel', serif; font-size: 1.8rem; color: #fff; margin-bottom: 10px; font-weight: 400; letter-spacing: 2px; }
         .id-sub { font-family: 'Montserrat', sans-serif; font-size: 0.7rem; color: var(--accent); margin-bottom: 50px; letter-spacing: 3px; text-transform: uppercase; opacity: 0.8; }
         .input-group { width: 100%; margin-bottom: 30px; }
-        .input-field { width: 100%; background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.3); padding: 15px 5px; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 1rem; transition: 0.3s; }
-        .input-field:focus { outline: none; border-bottom-color: var(--accent); }
+        .input-field { width: 100%; background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.3); padding: 15px 5px; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 1rem; transition: 0.3s; border-radius: 0; }
+        .input-field:focus { outline: none; border-bottom-color: var(--accent); box-shadow: 0 4px 10px -5px rgba(227, 233, 240, 0.2); }
 
-        /* 聲明區塊 */
         .disclaimer-box {
-            margin-top: 50px;
-            padding-top: 25px;
-            border-top: 1px solid rgba(255,255,255,0.15);
-            text-align: center;
-            width: 100%;
+            margin-top: 50px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.15);
+            text-align: center; width: 100%;
         }
-        
-        .d-title {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.65rem;
-            letter-spacing: 3px;
-            color: #666;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-        }
-        
-        .d-text {
-            font-family: 'Noto Sans TC', sans-serif;
-            font-size: 0.75rem; 
-            line-height: 1.8;   
-            color: #ccc;        
-            font-weight: 300;   
-            letter-spacing: 1px;
-        }
-        
+        .d-title { font-family: 'Montserrat', sans-serif; font-size: 0.65rem; letter-spacing: 3px; color: #666; margin-bottom: 12px; text-transform: uppercase; }
+        .d-text { font-family: 'Noto Sans TC', sans-serif; font-size: 0.75rem; line-height: 1.8; color: #ccc; font-weight: 300; letter-spacing: 1px; }
         .d-highlight { color: var(--accent); font-weight: 400; }
         .d-privacy { display: block; margin-top: 8px; font-size: 0.65rem; color: #666; }
+
+        /* --- Loading Overlay (Fashion Breathing Effect) --- */
+        #loadingLayer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30;
+            background: rgba(0,0,0,0.7); display: none; flex-direction: column;
+            justify-content: center; align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .loading-text {
+            font-family: 'Cinzel', serif; font-size: 1rem; letter-spacing: 4px; color: #fff;
+            animation: breathe 2s infinite ease-in-out;
+        }
+        .loading-sub {
+            font-family: 'Montserrat', sans-serif; font-size: 0.6rem; letter-spacing: 2px; color: #888;
+            margin-top: 10px;
+        }
+        @keyframes breathe {
+            0%, 100% { opacity: 0.3; transform: scale(0.98); }
+            50% { opacity: 1; transform: scale(1.02); text-shadow: 0 0 15px rgba(255,255,255,0.5); }
+        }
+
+        /* --- Result Modal (For Saving) --- */
+        #saveModal {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
+            background: rgba(5, 5, 5, 0.95); z-index: 999;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            backdrop-filter: blur(10px); opacity: 0; transition: opacity 0.5s;
+        }
+        #saveModal.active { opacity: 1; }
+        .modal-img-container {
+            width: 85%; max-width: 400px; height: auto;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            border: 1px solid #333; margin-bottom: 20px;
+        }
+        #modalResultImg { width: 100%; height: auto; display: block; }
+        .modal-tip {
+            font-family: 'Noto Sans TC', sans-serif; font-size: 0.9rem; color: var(--accent);
+            letter-spacing: 2px; text-align: center; margin-bottom: 30px; font-weight: 300;
+            animation: pulse 3s infinite;
+        }
+        .modal-close {
+            position: absolute; top: 30px; right: 30px; color: #fff; font-size: 2rem; cursor: pointer; font-family: 'Inter'; font-weight: 100;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
 
         /* --- UI Layer --- */
         #mainUiLayer {
@@ -93,45 +120,18 @@
         }
         #mainUiLayer.active { opacity: 1; pointer-events: auto; }
 
-        .brand-header {
-            font-family: 'Montserrat', sans-serif; font-size: 0.6rem; letter-spacing: 4px;
-            color: rgba(255,255,255,0.6); text-align: center; margin-bottom: 20px; padding-bottom: 15px;
-        }
-
+        .brand-header { font-family: 'Montserrat', sans-serif; font-size: 0.6rem; letter-spacing: 4px; color: rgba(255,255,255,0.6); text-align: center; margin-bottom: 20px; padding-bottom: 15px; }
         .upload-area { flex-grow: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; }
-        .upload-circle {
-            width: 130px; height: 130px; border: 0.5px solid rgba(255,255,255,0.4); border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; flex-direction: column;
-            cursor: pointer; transition: 0.3s; background: rgba(0,0,0,0.2); backdrop-filter: blur(5px);
-        }
+        .upload-circle { width: 130px; height: 130px; border: 0.5px solid rgba(255,255,255,0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column; cursor: pointer; transition: 0.3s; background: rgba(0,0,0,0.2); backdrop-filter: blur(5px); }
         .upload-circle:active { border-color: var(--accent); background: rgba(255,255,255,0.05); }
         .upload-text { font-family: 'Cinzel', serif; margin-top: 8px; font-size: 0.65rem; letter-spacing: 2px; color: #ccc; }
 
-        /* Result Panel */
-        .result-panel {
-            display: none; flex-direction: column; align-items: center; text-align: center;
-            padding-bottom: 20px; animation: fadeIn 1.2s cubic-bezier(0.22, 1, 0.36, 1); width: 100%;
-        }
+        .result-panel { display: none; flex-direction: column; align-items: center; text-align: center; padding-bottom: 20px; animation: fadeIn 1.2s cubic-bezier(0.22, 1, 0.36, 1); width: 100%; }
+        .preview-title { font-family: 'Cinzel', serif; font-size: 2.8rem; line-height: 0.9; color: #fff; margin-bottom: 8px; font-weight: 400; letter-spacing: -1px; text-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        .preview-sub { font-size: 1rem; color: var(--accent); letter-spacing: 6px; font-weight: 500; margin-bottom: 20px; text-shadow: 0 5px 20px rgba(0,0,0,0.8); opacity: 0.9; }
+        .preview-desc { font-family: 'Noto Sans TC', sans-serif; font-size: 0.85rem; color: #ddd; margin-bottom: 30px; padding: 0 5px; line-height: 1.6; font-weight: 300; text-align: justify; text-justify: inter-ideograph; }
 
-        .preview-title {
-            font-family: 'Cinzel', serif; font-size: 2.8rem; line-height: 0.9; color: #fff;
-            margin-bottom: 8px; font-weight: 400; letter-spacing: -1px; text-shadow: 0 10px 30px rgba(0,0,0,0.8);
-        }
-        .preview-sub {
-            font-size: 1rem; color: var(--accent); letter-spacing: 6px; font-weight: 500;
-            margin-bottom: 20px; text-shadow: 0 5px 20px rgba(0,0,0,0.8); opacity: 0.9;
-        }
-        .preview-desc {
-            font-family: 'Noto Sans TC', sans-serif; font-size: 0.85rem; color: #ddd;
-            margin-bottom: 30px; padding: 0 5px; line-height: 1.6; font-weight: 300;
-            text-align: justify; text-justify: inter-ideograph;
-        }
-
-        .stats-minimal {
-            display: flex; width: 100%; justify-content: center; align-items: flex-start;
-            margin-bottom: 30px; padding: 15px 0;
-            border-top: 0.5px solid var(--line-light); border-bottom: 0.5px solid var(--line-light);
-        }
+        .stats-minimal { display: flex; width: 100%; justify-content: center; align-items: flex-start; margin-bottom: 30px; padding: 15px 0; border-top: 0.5px solid var(--line-light); border-bottom: 0.5px solid var(--line-light); }
         .stat-item { padding: 0 10px; text-align: center; flex: 1; }
         .stat-label-en { font-family: 'Montserrat', sans-serif; font-size: 0.5rem; letter-spacing: 1px; color: #888; display: block; line-height: 1.2; }
         .stat-label-cn { font-family: 'Noto Sans TC', sans-serif; font-size: 0.6rem; color: #aaa; display: block; margin-bottom: 5px; font-weight: 500; }
@@ -140,18 +140,11 @@
 
         .info-grid { width: 100%; margin-bottom: 30px; }
         .info-row { margin-bottom: 20px; }
-        .info-label { 
-            font-family: 'Montserrat', sans-serif; font-size: 0.55rem; letter-spacing: 2px; 
-            color: #666; margin-bottom: 8px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 5px;
-        }
+        .info-label { font-family: 'Montserrat', sans-serif; font-size: 0.55rem; letter-spacing: 2px; color: #666; margin-bottom: 8px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 5px; }
         .match-names { font-family: 'Cinzel', serif; font-size: 0.8rem; color: var(--accent); letter-spacing: 1px; font-weight: 400; }
         .celeb-names { font-family: 'Noto Sans TC', sans-serif; font-size: 0.85rem; color: #ddd; font-weight: 300; letter-spacing: 1px; }
 
-        .btn-primary {
-            background: transparent; color: var(--accent); border: 0.5px solid var(--accent);
-            padding: 16px; cursor: pointer; width: 100%; display: flex; flex-direction: column; align-items: center;
-            transition: background 0.3s; position: relative; overflow: hidden;
-        }
+        .btn-primary { background: transparent; color: var(--accent); border: 0.5px solid var(--accent); padding: 16px; cursor: pointer; width: 100%; display: flex; flex-direction: column; align-items: center; transition: background 0.3s; position: relative; overflow: hidden; }
         .btn-main-text { font-family: 'Noto Sans TC', sans-serif; font-weight: 500; letter-spacing: 4px; font-size: 0.95rem; margin-bottom: 4px; color: #fff; }
         .btn-sub-text { font-family: 'Cinzel', serif; font-size: 0.55rem; letter-spacing: 2px; color: var(--accent); opacity: 0.8; }
         .btn-primary:active { transform: scale(0.98); background: var(--accent-dim); }
@@ -162,20 +155,12 @@
         .luxury-shine:hover::after, .luxury-shine:active::after { opacity: 1; animation: shine-sweep 0.6s cubic-bezier(0.2, 0.0, 0.2, 1) forwards; }
         .luxury-shine > * { position: relative; z-index: 2; } 
 
-        /* --- Export Card --- */
+        /* Export Card */
         #exportCard { position: fixed; left: -9999px; top: 0; width: 1080px; height: 1920px; background: #000; z-index: -1; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; }
         #exportBg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
         .card-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.6) 65%, rgba(0,0,0,0.95) 90%, #000 100%); z-index: 2; }
         .card-content { position: relative; z-index: 10; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; padding: 100px 100px; color: #fff; }
-        
-        .card-top { 
-            position: absolute; top: 80px; left: 80px; right: 80px; 
-            display: flex; justify-content: space-between; 
-            border-top: 2px solid rgba(255,255,255,0.8); padding-top: 30px; 
-            font-family: 'Montserrat', sans-serif; font-size: 24px; 
-            letter-spacing: 4px; font-weight: 400; text-transform: uppercase; 
-        }
-        
+        .card-top { position: absolute; top: 80px; left: 80px; right: 80px; display: flex; justify-content: space-between; border-top: 2px solid rgba(255,255,255,0.8); padding-top: 30px; font-family: 'Montserrat', sans-serif; font-size: 24px; letter-spacing: 4px; font-weight: 400; text-transform: uppercase; }
         .card-main { margin-bottom: 60px; }
         .card-en { font-family: 'Cinzel', serif; font-size: 140px; line-height: 0.85; margin-bottom: 30px; font-weight: 400; letter-spacing: -2px; }
         .card-cn { font-family: 'Noto Sans TC', sans-serif; font-size: 56px; letter-spacing: 20px; color: var(--accent); font-weight: 500; margin-bottom: 60px; text-shadow: 0 10px 30px rgba(0,0,0,0.8); }
@@ -238,6 +223,11 @@
 
         <img id="previewImg" class="bg-preview" style="display:none;">
         
+        <div id="loadingLayer">
+            <div class="loading-text">EXTRACTING AESTHETICS...</div>
+            <div class="loading-sub">EDEN VISUAL ENGINE</div>
+        </div>
+
         <div class="ui-layer" id="mainUiLayer">
             <div class="brand-header">EDEN LAB // VISUAL AUDIT</div>
             <div class="upload-area" id="uploadArea">
@@ -327,6 +317,14 @@
         </div>
     </div>
 
+    <div id="saveModal">
+        <div class="modal-close" onclick="document.getElementById('saveModal').classList.remove('active')">✕</div>
+        <div class="modal-img-container">
+            <img id="modalResultImg" src="">
+        </div>
+        <div class="modal-tip">請長按圖片 加入相簿<br><span style="font-size:0.6rem; opacity:0.7;">LONG PRESS TO SAVE</span></div>
+    </div>
+
     <script>
         const FORMSPREE_ENDPOINT = "https://formspree.io/f/xkogdpjr";
         let userData = { nickname: "Guest", instagram: "" };
@@ -382,6 +380,11 @@
         const previewImg = document.getElementById('previewImg');
         const uploadArea = document.getElementById('uploadArea');
         const quizModal = document.getElementById('quizModal');
+        const loadingLayer = document.getElementById('loadingLayer');
+
+        // Allow Enter key
+        document.getElementById('inputName').addEventListener('keydown', (e) => { if(e.key === 'Enter') submitIdentity(); });
+        document.getElementById('inputIg').addEventListener('keydown', (e) => { if(e.key === 'Enter') submitIdentity(); });
 
         function submitIdentity() {
             const name = document.getElementById('inputName').value.trim();
@@ -400,7 +403,13 @@
             state.originalImageFile = file;
             const reader = new FileReader();
             reader.onload = (evt) => {
-                previewImg.src = evt.target.result; previewImg.style.display = 'block'; uploadArea.style.display = 'none';
+                // Show Loading
+                uploadArea.style.display = 'none';
+                previewImg.src = evt.target.result;
+                previewImg.style.display = 'block';
+                previewImg.classList.add('zooming');
+                loadingLayer.style.display = 'flex'; // Show fashion pulse overlay
+
                 cropImageTo916(evt.target.result).then(croppedDataUrl => { document.getElementById('exportBg').src = croppedDataUrl; });
                 analyzeFace();
             };
@@ -423,6 +432,7 @@
         }
 
         async function analyzeFace() {
+            // Fake delay for "Developing" effect (2.5s)
             setTimeout(async () => {
                 const detection = await faceapi.detectSingleFace(previewImg, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceExpressions();
                 if (detection) {
@@ -432,8 +442,11 @@
                     state.visWarmth = Math.min(100, Math.max(10, state.visWarmth));
                     state.visPower = Math.min(100, Math.max(10, state.visPower));
                 } else { state.visWarmth = 60; state.visPower = 40; }
+                
+                // Hide Loading, Start Quiz
+                loadingLayer.style.display = 'none';
                 startQuiz();
-            }, 1000);
+            }, 2500);
         }
 
         function startQuiz() { quizModal.classList.add('active'); renderQuestion(); }
@@ -484,7 +497,6 @@
             const gapEl = document.getElementById('uiGap');
             if(gap > 40) gapEl.style.color = "var(--alert)"; else if(gap < 20) gapEl.style.color = "var(--accent)"; else gapEl.style.color = "#fff";
 
-            // Update UI
             document.getElementById('resultPanel').style.display = 'flex';
             document.getElementById('uiEn').innerText = result.en;
             document.getElementById('uiCn').innerText = result.cn;
@@ -528,10 +540,13 @@
             btn.querySelector('.btn-main-text').style.color = "#000";
 
             html2canvas(document.getElementById('exportCard'), { useCORS: true, scale: 1, width: 1080, height: 1920, backgroundColor: "#050505" }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = `EDEN_MASK_${userData.nickname}.png`;
-                link.href = canvas.toDataURL('image/png');
-                link.click();
+                // Show Result in Modal (For Mobile Long Press)
+                const modal = document.getElementById('saveModal');
+                const modalImg = document.getElementById('modalResultImg');
+                modalImg.src = canvas.toDataURL('image/png');
+                modal.classList.add('active');
+
+                // Reset Button
                 setTimeout(() => {
                     mainText.innerText = "COLLECTED!";
                     btn.style.background = "var(--accent)";
