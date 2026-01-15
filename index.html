@@ -41,7 +41,7 @@
         .bg-preview {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             object-fit: cover; filter: brightness(0.6) grayscale(20%); z-index: 1;
-            transition: transform 10s ease; /* For Ken Burns effect */
+            transition: transform 10s ease;
         }
         .bg-preview.zooming { transform: scale(1.1); }
 
@@ -67,7 +67,7 @@
         .d-highlight { color: var(--accent); font-weight: 400; }
         .d-privacy { display: block; margin-top: 8px; font-size: 0.65rem; color: #666; }
 
-        /* --- Loading Overlay (Fashion Breathing Effect) --- */
+        /* --- Loading Overlay --- */
         #loadingLayer {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30;
             background: rgba(0,0,0,0.7); display: none; flex-direction: column;
@@ -86,30 +86,6 @@
             0%, 100% { opacity: 0.3; transform: scale(0.98); }
             50% { opacity: 1; transform: scale(1.02); text-shadow: 0 0 15px rgba(255,255,255,0.5); }
         }
-
-        /* --- Result Modal (For Saving) --- */
-        #saveModal {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
-            background: rgba(5, 5, 5, 0.95); z-index: 999;
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-            backdrop-filter: blur(10px); opacity: 0; transition: opacity 0.5s;
-        }
-        #saveModal.active { opacity: 1; }
-        .modal-img-container {
-            width: 85%; max-width: 400px; height: auto;
-            box-shadow: 0 0 30px rgba(0,0,0,0.8);
-            border: 1px solid #333; margin-bottom: 20px;
-        }
-        #modalResultImg { width: 100%; height: auto; display: block; }
-        .modal-tip {
-            font-family: 'Noto Sans TC', sans-serif; font-size: 0.9rem; color: var(--accent);
-            letter-spacing: 2px; text-align: center; margin-bottom: 30px; font-weight: 300;
-            animation: pulse 3s infinite;
-        }
-        .modal-close {
-            position: absolute; top: 30px; right: 30px; color: #fff; font-size: 2rem; cursor: pointer; font-family: 'Inter'; font-weight: 100;
-        }
-        @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
 
         /* --- UI Layer --- */
         #mainUiLayer {
@@ -317,14 +293,6 @@
         </div>
     </div>
 
-    <div id="saveModal">
-        <div class="modal-close" onclick="document.getElementById('saveModal').classList.remove('active')">✕</div>
-        <div class="modal-img-container">
-            <img id="modalResultImg" src="">
-        </div>
-        <div class="modal-tip">請長按圖片 加入相簿<br><span style="font-size:0.6rem; opacity:0.7;">LONG PRESS TO SAVE</span></div>
-    </div>
-
     <script>
         const FORMSPREE_ENDPOINT = "https://formspree.io/f/xkogdpjr";
         let userData = { nickname: "Guest", instagram: "" };
@@ -403,12 +371,11 @@
             state.originalImageFile = file;
             const reader = new FileReader();
             reader.onload = (evt) => {
-                // Show Loading
                 uploadArea.style.display = 'none';
                 previewImg.src = evt.target.result;
                 previewImg.style.display = 'block';
                 previewImg.classList.add('zooming');
-                loadingLayer.style.display = 'flex'; // Show fashion pulse overlay
+                loadingLayer.style.display = 'flex'; 
 
                 cropImageTo916(evt.target.result).then(croppedDataUrl => { document.getElementById('exportBg').src = croppedDataUrl; });
                 analyzeFace();
@@ -432,7 +399,6 @@
         }
 
         async function analyzeFace() {
-            // Fake delay for "Developing" effect (2.5s)
             setTimeout(async () => {
                 const detection = await faceapi.detectSingleFace(previewImg, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceExpressions();
                 if (detection) {
@@ -443,7 +409,6 @@
                     state.visPower = Math.min(100, Math.max(10, state.visPower));
                 } else { state.visWarmth = 60; state.visPower = 40; }
                 
-                // Hide Loading, Start Quiz
                 loadingLayer.style.display = 'none';
                 startQuiz();
             }, 2500);
@@ -540,13 +505,10 @@
             btn.querySelector('.btn-main-text').style.color = "#000";
 
             html2canvas(document.getElementById('exportCard'), { useCORS: true, scale: 1, width: 1080, height: 1920, backgroundColor: "#050505" }).then(canvas => {
-                // Show Result in Modal (For Mobile Long Press)
-                const modal = document.getElementById('saveModal');
-                const modalImg = document.getElementById('modalResultImg');
-                modalImg.src = canvas.toDataURL('image/png');
-                modal.classList.add('active');
-
-                // Reset Button
+                const link = document.createElement('a');
+                link.download = `EDEN_MASK_${userData.nickname}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
                 setTimeout(() => {
                     mainText.innerText = "COLLECTED!";
                     btn.style.background = "var(--accent)";
