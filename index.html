@@ -58,16 +58,14 @@
         .input-field { width: 100%; background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.3); padding: 15px 5px; color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 1rem; transition: 0.3s; border-radius: 0; }
         .input-field:focus { outline: none; border-bottom-color: var(--accent); box-shadow: 0 4px 10px -5px rgba(227, 233, 240, 0.2); }
 
-        .disclaimer-box {
-            margin-top: 50px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.15);
-            text-align: center; width: 100%;
-        }
+        /* Privacy Box */
+        .disclaimer-box { margin-top: 50px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.15); text-align: center; width: 100%; }
         .d-title { font-family: 'Montserrat', sans-serif; font-size: 0.65rem; letter-spacing: 3px; color: #666; margin-bottom: 12px; text-transform: uppercase; }
         .d-text { font-family: 'Noto Sans TC', sans-serif; font-size: 0.75rem; line-height: 1.8; color: #ccc; font-weight: 300; letter-spacing: 1px; }
         .d-highlight { color: var(--accent); font-weight: 400; }
         .d-privacy { display: block; margin-top: 8px; font-size: 0.65rem; color: #666; }
 
-        /* --- Loading Overlay --- */
+        /* --- Loading Layer (Fashion Style) --- */
         #loadingLayer {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 30;
             background: rgba(0,0,0,0.7); display: none; flex-direction: column;
@@ -97,11 +95,23 @@
         #mainUiLayer.active { opacity: 1; pointer-events: auto; }
 
         .brand-header { font-family: 'Montserrat', sans-serif; font-size: 0.6rem; letter-spacing: 4px; color: rgba(255,255,255,0.6); text-align: center; margin-bottom: 20px; padding-bottom: 15px; }
-        .upload-area { flex-grow: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; }
-        .upload-circle { width: 130px; height: 130px; border: 0.5px solid rgba(255,255,255,0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column; cursor: pointer; transition: 0.3s; background: rgba(0,0,0,0.2); backdrop-filter: blur(5px); }
+        
+        /* Intro Text Block (New) */
+        .intro-block { text-align: center; margin-bottom: 20px; animation: fadeIn 1s ease; }
+        .intro-title { font-family: 'Montserrat', sans-serif; font-size: 0.8rem; letter-spacing: 3px; color: #fff; margin-bottom: 8px; text-transform: uppercase; }
+        .intro-sub { font-family: 'Noto Sans TC', sans-serif; font-size: 0.8rem; color: #ccc; font-weight: 300; letter-spacing: 1px; }
+
+        .upload-area { flex-grow: 1; display: flex; align-items: center; justify-content: center; flex-direction: column; position: relative; }
+        .upload-circle { width: 130px; height: 130px; border: 0.5px solid rgba(255,255,255,0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column; cursor: pointer; transition: 0.3s; background: rgba(0,0,0,0.2); backdrop-filter: blur(5px); z-index: 5; }
         .upload-circle:active { border-color: var(--accent); background: rgba(255,255,255,0.05); }
         .upload-text { font-family: 'Cinzel', serif; margin-top: 8px; font-size: 0.65rem; letter-spacing: 2px; color: #ccc; }
 
+        /* Sensor Status Block (New) */
+        .sensor-block { text-align: center; margin-top: 30px; opacity: 0.7; }
+        .sensor-status { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; color: var(--accent); letter-spacing: 1px; margin-bottom: 5px; }
+        .sensor-note { font-family: 'Noto Sans TC', sans-serif; font-size: 0.6rem; color: #666; font-weight: 300; letter-spacing: 0.5px; }
+
+        /* Result & Stats */
         .result-panel { display: none; flex-direction: column; align-items: center; text-align: center; padding-bottom: 20px; animation: fadeIn 1.2s cubic-bezier(0.22, 1, 0.36, 1); width: 100%; }
         .preview-title { font-family: 'Cinzel', serif; font-size: 2.8rem; line-height: 0.9; color: #fff; margin-bottom: 8px; font-weight: 400; letter-spacing: -1px; text-shadow: 0 10px 30px rgba(0,0,0,0.8); }
         .preview-sub { font-size: 1rem; color: var(--accent); letter-spacing: 6px; font-weight: 500; margin-bottom: 20px; text-shadow: 0 5px 20px rgba(0,0,0,0.8); opacity: 0.9; }
@@ -131,7 +141,7 @@
         .luxury-shine:hover::after, .luxury-shine:active::after { opacity: 1; animation: shine-sweep 0.6s cubic-bezier(0.2, 0.0, 0.2, 1) forwards; }
         .luxury-shine > * { position: relative; z-index: 2; } 
 
-        /* Export Card */
+        /* --- Export Card --- */
         #exportCard { position: fixed; left: -9999px; top: 0; width: 1080px; height: 1920px; background: #000; z-index: -1; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; }
         #exportBg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
         .card-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.6) 65%, rgba(0,0,0,0.95) 90%, #000 100%); z-index: 2; }
@@ -206,9 +216,20 @@
 
         <div class="ui-layer" id="mainUiLayer">
             <div class="brand-header">EDEN LAB // VISUAL AUDIT</div>
+            
+            <div class="intro-block">
+                <div class="intro-title">AI BIOMETRICS × PSYCHOLOGY</div>
+                <div class="intro-sub">測算「視覺氣場」與「真實性格」的落差</div>
+            </div>
+
             <div class="upload-area" id="uploadArea">
                 <div class="upload-circle luxury-shine" onclick="document.getElementById('fileInput').click()">
                     <div style="font-size: 2rem; color:#fff; font-weight:100;">+</div><div class="upload-text">UPLOAD</div>
+                </div>
+                
+                <div class="sensor-block">
+                    <div class="sensor-status">[ SYSTEM STATUS : SENSOR READY ]</div>
+                    <div class="sensor-note">請上傳五官清晰之正面照片，避免過度遮擋或濾鏡</div>
                 </div>
             </div>
             <input type="file" id="fileInput" accept="image/*">
